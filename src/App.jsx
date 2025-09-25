@@ -1,70 +1,139 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-
+import { z } from "zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 
+// Zod schema for validation
+const signinSchema = z.object({
+  email: z.string().email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+const signupSchema = z
+  .object({
+    username: z.string().min(3, "Username must be at least 3 characters long"),
+    email: z.string().email("Enter a valid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+      .regex(/[0-9]/, "Password must include at least one number")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must include at least one symbol"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+});
 
 function App() {
-  const [mode, setMode] = useState("signin"); 
-
-  // Form state
-  const [username, setUsername] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [mode, setMode] = useState("signup"); // default 
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [errors, setErrors] = useState({});
 
-  const validate = () => {
-  const newErrors = {};
-
-  // Username check
-  if (!username.trim()) {
-    newErrors.username = "Username is required.";
-  }
-
-  // Full name check (signup only)
-  if (mode === "signup" && !fullName.trim()) {
-    newErrors.fullName = "Full name is required.";
-  }
+  const handleModeSwitch = (newMode) => {
+    setMode(newMode);
+    setFormData(
+      newMode === "signup"
+        ? { username: "", email: "", password: "", confirmPassword: "" }
+        : { email: "", password: "" }
+    );
+    setErrors({});
+  };
 
 
-  // Email check
-  if (!email) {
-    newErrors.email = "Email is required.";
-  } else if (!/\S+@\S+\.\S+/.test(email)) {
-    newErrors.email = "Enter a valid email address.";
-  }
+  // Handle input changes + validation
+  const handleChange = (field, value) => {
+    const updatedFormData = { ...formData, [field]: value };
+    setFormData(updatedFormData);
 
-  // Password check
-  if (!password) {
-    newErrors.password = "Password is required.";
-  } else if (password.length < 8) {
-    newErrors.password = "Password must be at least 8 characters long.";
-  } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    newErrors.password = "Password must include at least one symbol.";
-  }
 
-  // Confirm password (signup only)
-  if (mode === "signup" && confirmPassword !== password) {
-    newErrors.confirmPassword = "Passwords do not match.";
+  // Per-field validation
+  const newErrors = { ...errors }; 
+
+    if (field === "email") {
+    const emailSchema = z.string().email("Enter a valid email address");
+    const result = emailSchema.safeParse(value);
+    if (!result.success) {
+      newErrors.email = result.error.errors[0].message;
+    } else {
+      delete newErrors.email;
+    }
+  } else if (field === "password") {
+    const passwordSchema = mode === "signup" 
+      ? z.string()
+          .min(8, "Password must be at least 8 characters long")
+          .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+          .regex(/[0-9]/, "Password must include at least one number")
+          .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must include at least one symbol")
+      : z.string().min(1, "Password is required");
+    
+    const result = passwordSchema.safeParse(value);
+    if (!result.success) {
+      newErrors.password = result.error.errors[0].message;
+    } else {
+      delete newErrors.password;
+    }
+
+    // ✅ NEW: Re-validate confirm password if it exists
+    if (mode === "signup" && updatedFormData.confirmPassword) {
+      if (value !== updatedFormData.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      } else {
+        delete newErrors.confirmPassword;
+      }
+    }
+  } else if (field === "username") {
+    const usernameSchema = z.string().min(3, "Username must be at least 3 characters long");
+    const result = usernameSchema.safeParse(value);
+    if (!result.success) {
+      newErrors.username = result.error.errors[0].message;
+    } else {
+      delete newErrors.username;
+    }
+  } else if (field === "confirmPassword") {
+    if (updatedFormData.password !== value) {
+      newErrors.confirmPassword = "Passwords do not match";
+    } else {
+      delete newErrors.confirmPassword;
+    }
   }
 
   setErrors(newErrors);
-  return Object.keys(newErrors).length === 0; 
-};
 
-const handleSubmit = (e) => {
-  e.preventDefault();
-  if (validate()) {
-    alert(`${mode === "signin" ? "Signed in" : "Account created"} successfully!`);
-    // TODO: send data to backend
+};
+  
+  
+
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const activeSchema = mode === "signup" ? signupSchema : signinSchema;
+    const result = activeSchema.safeParse(formData);
+
+
+    if (result.success) {
+      alert(
+        `${mode === "signup" ? "Account created" : "Signed in"} successfully!`
+      );
+    } else {
+      alert("Please fix errors before submitting.");
+    }
+  };
+  let isFormValid = false;
+  try {
+    const activeSchema = mode === "signup" ? signupSchema : signinSchema;
+    isFormValid = activeSchema.safeParse(formData).success;
+  } catch {
+    isFormValid = false;
   }
-};
-
 
   
 
@@ -86,7 +155,7 @@ const handleSubmit = (e) => {
                   ? "bg-white text-gray-900 rounded-sm shadow-sm"
                   : "text-gray-600"
               }`}
-              onClick={() => setMode("signup")}
+              onClick={() => handleModeSwitch("signup")}
             >
               Sign Up
             </button>
@@ -96,7 +165,7 @@ const handleSubmit = (e) => {
                   ? "bg-white text-gray-900 rounded-sm shadow-sm"
                   : "text-gray-600"
               }`}
-              onClick={() => setMode("signin")}
+              onClick={() => handleModeSwitch("signin")}
             >
               Sign In
             </button>
@@ -107,64 +176,92 @@ const handleSubmit = (e) => {
           <form className="text-left mt-6 space-y-4" onSubmit={handleSubmit}>
             
             <div className="text-left mt-6">
-              <form className="space-y-4">
-                {mode === "signup" && (
-                  <div className="w-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter your username"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                )}
-
-                <div className="w-full">
+              {/* Username */}
+              
+              {mode === "signup" && (
+                <div className="w-full mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Email Address
+                    Username
                   </label>
                   <input
-                    type="email"
-                    placeholder="Enter your email"
+                    type="text"
+                    placeholder="Enter your username"
+                    value={formData.username}
+                    onChange={(e) => handleChange("username", e.target.value)}
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+                  {errors.username && (
+                    <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+                  )}
                 </div>
-
-                <div className="w-full">
+              )}
+              {/* Email */}
+              <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
+              </div>
+              {/* Password */}
+              <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                )}
+              </div>
+              {/* Confirm Password */}
+              {mode === "signup" && (
+                <div className="w-full mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Password
+                    Confirm Password
                   </label>
                   <input
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Re-enter your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      handleChange("confirmPassword", e.target.value)
+                    }
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.confirmPassword}
+                    </p>
+                  )}
                 </div>
+              )}
 
-                {mode === "signup" && (
-                  <div className="w-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="Re-enter your password"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                )}
-
-                
-
-                <button
-                  type="submit"
-                  className="w-full py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800 transition-colors"
-                >
-                  {mode === "signup" ? "Sign Up" : "Sign In"}
-                </button>
-              </form>
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className={`w-full py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800 transition-colors ${
+              isFormValid
+                ? "bg-black text-white hover:bg-gray-800"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                }`}
+              >
+                {mode === "signup" ? "Sign Up" : "Sign In"}
+              </button>
+              
             </div>
           </form>  
         </div>
@@ -173,10 +270,6 @@ const handleSubmit = (e) => {
           <h2 className="text-xs  text-gray-900 mb-1">
             Or Sign up with
           </h2>
-          <div className="icons">
-            <div className=""></div>
-          </div>
-
         </div>
         
         <div className="flex items-center justify-center space-x-6 mt-6">
