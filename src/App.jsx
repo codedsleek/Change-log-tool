@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import { z } from "zod";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
+
 
 // Zod schema for validation
 const signinSchema = z.object({
@@ -36,6 +38,7 @@ function App() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleModeSwitch = (newMode) => {
     setMode(newMode);
@@ -57,7 +60,7 @@ function App() {
   // Per-field validation
   const newErrors = { ...errors }; 
 
-    if (field === "email") {
+  if (field === "email") {
     const emailSchema = z.string().email("Enter a valid email address");
     const result = emailSchema.safeParse(value);
     if (!result.success) {
@@ -65,39 +68,36 @@ function App() {
     } else {
       delete newErrors.email;
     }
-  } else if (field === "password") {
-    const passwordSchema = mode === "signup" 
-      ? z.string()
-          .min(8, "Password must be at least 8 characters long")
-          .regex(/[A-Z]/, "Password must include at least one uppercase letter")
-          .regex(/[0-9]/, "Password must include at least one number")
-          .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must include at least one symbol")
-      : z.string().min(1, "Password is required");
+  } else if (field === "password" || field === "confirmPassword") {
+    const passwordSchema = z.string() 
+      
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+      .regex(/[0-9]/, "Password must include at least one number")
+      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must include at least one symbol")
     
-    const result = passwordSchema.safeParse(value);
-    if (!result.success) {
-      newErrors.password = result.error.errors[0].message;
-    } else {
-      delete newErrors.password;
-    }
-
-    // ✅ NEW: Re-validate confirm password if it exists
-    if (mode === "signup" && updatedFormData.confirmPassword) {
-      if (value !== updatedFormData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
+      if (!passwordSchema.safeParse(updatedFormData.password).success) {
+        newErrors.password = "Password must be at least 8 chars, include uppercase, number, and symbol";
       } else {
-        delete newErrors.confirmPassword;
-      }
+      delete newErrors.password; 
     }
+    // ===== Re-validate confirmPassword whenever password changes =====
+    if (mode === "signup" && updatedFormData.confirmPassword !== updatedFormData.password) {  // <-- CHANGED
+    newErrors.confirmPassword = "Passwords do not match"; // <-- CHANGED
+    } else {
+      delete newErrors.confirmPassword;
+    }
+   
   } else if (field === "username") {
     const usernameSchema = z.string().min(3, "Username must be at least 3 characters long");
-    const result = usernameSchema.safeParse(value);
-    if (!result.success) {
-      newErrors.username = result.error.errors[0].message;
-    } else {
-      delete newErrors.username;
+    const usernameResult = usernameSchema.safeParse(value);
+    if (!usernameResult.success) {
+      newErrors.username = usernameResult.error.errors[0].message;
+    } else  {
+      delete newErrors.username; 
     }
   } else if (field === "confirmPassword") {
+  // ===== confirmPassword validation =====
     if (updatedFormData.password !== value) {
       newErrors.confirmPassword = "Passwords do not match";
     } else {
@@ -105,12 +105,10 @@ function App() {
     }
   }
 
+
   setErrors(newErrors);
 
 };
-  
-  
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -120,20 +118,48 @@ function App() {
 
 
     if (result.success) {
+      if (mode === "signin") {
+        // Navigate to Dashboard on successful sign-in
+        navigate("/dashboard");
+      }
       alert(
         `${mode === "signup" ? "Account created" : "Signed in"} successfully!`
       );
     } else {
+      const fieldErrors = {};
+      result.error.errors.forEach((err) => {
+        fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
       alert("Please fix errors before submitting.");
     }
   };
-  let isFormValid = false;
-  try {
-    const activeSchema = mode === "signup" ? signupSchema : signinSchema;
-    isFormValid = activeSchema.safeParse(formData).success;
-  } catch {
-    isFormValid = false;
+
+
+  const [isFormValid, setIsFormValid] = useState(false);
+    useEffect(() => {
+  if (mode === "signup") {  
+    setIsFormValid(
+      Object.keys(errors).length === 0 &&  
+      formData.username &&  
+      formData.email &&
+      formData.password &&
+      formData.confirmPassword
+    );
+  } else {
+    setIsFormValid(
+      Object.keys(errors).length === 0 &&
+      formData.email &&
+      formData.password
+    );
   }
+}, [formData, errors, mode]);  // <-- CHANGED: dependencies stay the same
+
+
+
+
+
+
 
   
 
@@ -207,9 +233,9 @@ function App() {
                   onChange={(e) => handleChange("email", e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
-                {errors.email && (
+                {errors.email && 
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
+                }
               </div>
               {/* Password */}
               <div className="w-full mb-4">
