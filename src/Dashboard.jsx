@@ -1,16 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal, Share, LogOut } from 'lucide-react';
+import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal, Share, LogOut, X, ArrowRight } from 'lucide-react';
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showCommentsSidebar, setShowCommentsSidebar] = useState(false);
   const dropdownRef = useRef(null);
+  const commentsSidebarRef = useRef(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowProfileDropdown(false);
+      }
+      if (commentsSidebarRef.current && !commentsSidebarRef.current.contains(event.target)) {
+        setShowCommentsSidebar(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -41,6 +46,33 @@ export default function Dashboard() {
       daysAgo: 2,
       people: 3,
       comments: 2
+    }
+  ]);
+
+  const [comments] = useState([
+    {
+      id: 1,
+      user: 'Samuel Soda',
+      timestamp: '09:00 AM',
+      message: 'Working on some new designs to share before 5pm'
+    },
+    {
+      id: 2,
+      user: 'Monroy Rodrique',
+      timestamp: '09:00 AM',
+      message: ''
+    },
+    {
+      id: 3,
+      user: 'Samuel Soda',
+      timestamp: '09:00 AM',
+      message: 'Working on some new designs to share before 5pm'
+    },
+    {
+      id: 4,
+      user: 'Monroy Rodrique',
+      timestamp: '09:00 AM',
+      message: ''
     }
   ]);
 
@@ -140,7 +172,10 @@ export default function Dashboard() {
               <span className="text-sm text-gray-600">Home</span>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm">
+              <button 
+                onClick={() => setShowCommentsSidebar(!showCommentsSidebar)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm"
+              >
                 <MessageSquare size={16} />
                 <span>New Comments</span>
               </button>
@@ -280,6 +315,63 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Comments Sidebar */}
+      {showCommentsSidebar && (
+        <div 
+          ref={commentsSidebarRef}
+          className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-40 overflow-y-auto"
+        >
+          {/* Comments Header */}
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-medium text-gray-900">New Comments</h2>
+              <button 
+                onClick={() => setShowCommentsSidebar(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Comments List */}
+          <div className="p-4 space-y-4">
+            {comments.map((comment) => (
+              <div key={comment.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                <div className="w-8 h-8 bg-amber-800 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-medium">
+                    {comment.user.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {comment.user}
+                    </p>
+                    <p className="text-xs text-gray-500">{comment.timestamp}</p>
+                  </div>
+                  {comment.message ? (
+                    <p className="text-sm text-gray-600">{comment.message}</p>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">No message</p>
+                  )}
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-gray-400">Website Redesign</span>
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500">Keep up the work</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
