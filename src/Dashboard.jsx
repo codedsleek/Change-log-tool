@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
-import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal, Share, LogOut } from 'lucide-react';
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const [projects] = useState([
     {
       id: 1,
@@ -130,7 +144,63 @@ export default function Dashboard() {
                 <MessageSquare size={16} />
                 <span>New Comments</span>
               </button>
-              <div className="w-8 h-8 bg-purple-500 rounded-full"></div>
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="w-8 h-8 bg-purple-500 rounded-full hover:bg-purple-600 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                ></button>
+                
+                {/* Profile Dropdown */}
+                {showProfileDropdown && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <MessageSquare size={16} className="text-gray-400" />
+                          <span className="text-sm text-gray-600">New Comments</span>
+                        </div>
+                        <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Profile Info */}
+                    <div className="px-4 py-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500">Avatar</span>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <Share size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-500">Username</span>
+                          <span className="text-sm font-medium text-gray-900">Max D. Praise</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-500">Email</span>
+                          <span className="text-sm text-gray-900">firstduke@gmail.com</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-500">Password</span>
+                          <span className="text-sm text-gray-900">••••••••</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Sign out */}
+                    <div className="px-4 py-3 border-t border-gray-200">
+                      <button className="flex items-center space-x-2 text-red-600 hover:text-red-700 text-sm w-full">
+                        <LogOut size={16} />
+                        <span>Signout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
