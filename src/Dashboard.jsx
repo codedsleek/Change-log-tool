@@ -369,7 +369,7 @@ export default function Dashboard() {
       {/* New Project Modal */}
       {showNewProjectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
+          <div ref={newProjectModalRef} className="bg-white rounded-lg shadow-lg w-full max-w-md">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-medium text-gray-900">Create New Project</h2>
