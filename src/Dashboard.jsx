@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal, Share, LogOut, X, ArrowRight } from 'lucide-react';
+import CreateProjectModal from "./components/CreateProjectModal";
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,7 +17,6 @@ export default function Dashboard() {
   const dropdownRef = useRef(null);
   const commentsSidebarRef = useRef(null);
   const searchModalRef = useRef(null);
-  const newProjectModalRef = useRef(null);
 
   
 
@@ -31,9 +31,6 @@ export default function Dashboard() {
       }
       if (searchModalRef.current && !searchModalRef.current.contains(event.target)) {
         setShowSearchModal(false);
-      }
-      if (newProjectModalRef.current && !newProjectModalRef.current.contains(event.target)) {
-      setShowNewProjectModal(false);
       }
     }
 
@@ -62,10 +59,8 @@ export default function Dashboard() {
   ]);
 
   const [comments] = useState([
-    { id: 1, user: 'Samuel Soda', timestamp: '09:00 AM', message: 'Working on some new designs to share before 5pm' },
-    { id: 2, user: 'Monroy Rodrique', timestamp: '09:00 AM', message: '' },
-    { id: 3, user: 'Samuel Soda', timestamp: '09:00 AM', message: 'Working on some new designs to share before 5pm' },
-    { id: 4, user: 'Monroy Rodrique', timestamp: '09:00 AM', message: '' }
+    { id: 1, user: 'Samuel Saidu', timestamp: '09:00 AM', message: 'Looks great! The mobile version is much better now.' },
+    { id: 2, user: 'Samuel Saidu', timestamp: '09:00 AM', message: 'Looks great! The mobile version is much better now.' },
   ]);
 
   const [searchResults] = useState({
@@ -79,8 +74,8 @@ export default function Dashboard() {
       { id: 2, name: 'Homepage Layout Complete', type: 'log' }
     ],
     comments: [
-      { id: 1, user: 'Samuel Soda', date: '10/01/2025', message: 'Looks great! The mobile version is much better now.', type: 'comment' },
-      { id: 2, user: 'Samuel Soda', date: '10/01/2025', message: 'Looks great! The mobile version is much better now.', type: 'comment' }
+      { id: 1, user: 'Samuel Saidu', date: '10/01/2025', message: 'Looks great! The mobile version is much better now.', type: 'comment' },
+      { id: 2, user: 'Samuel Saidu', date: '10/01/2025', message: 'Looks great! The mobile version is much better now.', type: 'comment' }
     ]
   });
 
@@ -349,9 +344,9 @@ export default function Dashboard() {
                   ) : (
                     <p className="text-sm text-gray-400 italic">No message</p>
                   )}
-                  <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-left justify-between mt-2">
                     <span className="text-xs text-gray-400">Website Redesign</span>
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <button className="text-gray-400  hover:text-gray-600">
                       <ArrowRight size={14} />
                     </button>
                   </div>
@@ -359,96 +354,29 @@ export default function Dashboard() {
               </div>
             ))}
             
-            <div className="text-center py-4">
-              <p className="text-sm text-gray-500">Keep up the work</p>
-            </div>
+            <button className="items-center space-x-2 text-amber-800 px-3 py-2 text-sm hover:underline hover:cursor-pointer"
+              >
+              <span>Mark all as read</span>
+            </button>
+            
           </div>
         </div>
       )}
 
       {/* New Project Modal */}
       {showNewProjectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div ref={newProjectModalRef} className="bg-white rounded-lg shadow-lg w-full max-w-md">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">Create New Project</h2>
-              <button 
-                onClick={() => setShowNewProjectModal(false)} 
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="px-6 py-4 space-y-4">
-              {/* Project Name */}
-              <div>
-                <label className="text-left block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter project name"
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-amber-800 focus:border-amber-800"
-                />
-              </div>
-
-              {/* Project Icon */}
-              <div>
-                <label className="text-left block text-sm font-medium text-gray-700 mb-1">Upload Project Icon (Optional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setNewProjectIcon(e.target.files[0])}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                />
-              </div>
-
-              {/* Project Description */}
-              <div>
-                <label className="text-left block text-sm font-medium text-gray-700 mb-1">Project Description</label>
-                <textarea
-                  placeholder="Enter project description"
-                  value={newProjectDescription}
-                  onChange={(e) => setNewProjectDescription(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-amber-800 focus:border-amber-800"
-                  rows={3}
-                  maxLength={150}
-                />
-                <p className="text-left text-xs text-gray-500 mt-1">{newProjectDescription.length}/150 characters</p>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-200">
-              <button
-                disabled={!newProjectName}
-                className={`w-full px-4 py-2 rounded-md text-sm font-medium ${
-                  newProjectName
-                    ? "bg-amber-800 text-white hover:bg-amber-700"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                }`}
-                onClick={() => {
-                  // Save project logic here
-                  console.log("New Project:", { newProjectName, newProjectDescription, newProjectIcon });
-                  setShowNewProjectModal(false);
-                }}
-              >
-                Create Project
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreateProjectModal
+          onClose={() => setShowNewProjectModal(false)}
+        />
       )}
+
 
 
 
 
       {/* Search Modal */}
       {showSearchModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-black/50 backdrop-opacity-75  animate-fadeIn">
           <div ref={searchModalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden">
             {/* Search Header */}
             <div className="p-6 border-b border-gray-200">
@@ -514,8 +442,8 @@ export default function Dashboard() {
                           <span className="text-white text-xs font-medium">{comment.user[0]}</span>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{comment.user}</p>
-                          <p className="text-xs text-gray-500">{comment.date}</p>
+                          <p className="text-sm text-left font-medium text-gray-900">{comment.user}</p>
+                          <p className="text-xs text-left text-gray-400">{comment.date}</p>
                           <p className="text-sm text-gray-600 truncate">{comment.message}</p>
                         </div>
                       </div>
