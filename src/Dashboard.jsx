@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal, Share, LogOut, X, ArrowRight } from 'lucide-react';
 import CreateProjectModal from "./components/CreateProjectModal";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -313,55 +315,69 @@ export default function Dashboard() {
       </div>
 
       {/* Comments Sidebar */}
-      {showCommentsSidebar && (
-        <div ref={commentsSidebarRef} className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-40 overflow-y-auto">
-          {/* Comments Header */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-medium text-gray-900">New Comments</h2>
-              <button onClick={() => setShowCommentsSidebar(false)} className="text-gray-400 hover:text-gray-600">
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-
-          {/* Comments List */}
-          <div className="p-4 space-y-4">
-            {comments.map((comment) => (
-              <div key={comment.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-                <div className="w-8 h-8 bg-amber-800 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-xs font-medium">
-                    {comment.user.split(' ').map(n => n[0]).join('')}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-medium text-gray-900 truncate">{comment.user}</p>
-                    <p className="text-xs text-gray-500">{comment.timestamp}</p>
-                  </div>
-                  {comment.message ? (
-                    <p className="text-sm text-gray-600">{comment.message}</p>
-                  ) : (
-                    <p className="text-sm text-gray-400 italic">No message</p>
-                  )}
-                  <div className="flex items-left justify-between mt-2">
-                    <span className="text-xs text-gray-400">Website Redesign</span>
-                    <button className="text-gray-400  hover:text-gray-600">
-                      <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </div>
+      <AnimatePresence>
+        {showCommentsSidebar && (
+          <motion.div
+            ref={commentsSidebarRef}
+            key="commentsSidebar"
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-40 overflow-y-auto"
+          >
+            {/* Comments Header */}
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium text-gray-900">New Comments</h2>
+                <button 
+                  onClick={() => setShowCommentsSidebar(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
               </div>
-            ))}
-            
-            <button className="items-center space-x-2 text-amber-800 px-3 py-2 text-sm hover:underline hover:cursor-pointer"
-              >
-              <span>Mark all as read</span>
-            </button>
-            
-          </div>
-        </div>
-      )}
+            </div>
+
+            {/* Comments List */}
+            <div className="p-4 space-y-4">
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                  <div className="w-8 h-8 bg-amber-800 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-xs font-medium">
+                      {comment.user.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {comment.user}
+                      </p>
+                      <p className="text-xs text-gray-500">{comment.timestamp}</p>
+                    </div>
+                    {comment.message ? (
+                      <p className="text-sm text-gray-600">{comment.message}</p>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">No message</p>
+                    )}
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-gray-400">Website Redesign</span>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">Keep up the work</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
       {/* New Project Modal */}
       {showNewProjectModal && (
