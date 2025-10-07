@@ -9,6 +9,7 @@ const CreateProjectModal = ({ onClose }) => {
   const [collaborators, setCollaborators] = useState([{ email: "", alias: "" }]);
   const modalRef = useRef(null);
 
+
   // Close modal on outside click or ESC
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -146,18 +147,18 @@ const CreateProjectModal = ({ onClose }) => {
 
               <button
                 onClick={handleAddCollaborator}
-                className="w-full border border-dashed border-gray-400 text-gray-700 py-2 rounded-md hover:bg-gray-50"
+                className="w-full bg-amber-700/5 border-gray-800 text-amber-800 py-2 rounded-md hover:underline cursor-pointer"
               >
                 + Add a new collaborator
               </button>
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-200">
+            <div className="px-6 pt-0 py-4 border-t border-gray-200">
               <button
                 onClick={handleCreateProject}
-                className="w-full px-4 py-2 rounded-md text-sm font-medium bg-amber-800 text-white hover:bg-amber-700"
+                className="w-full px-4 py-2 rounded-md text-sm font-medium bg-amber-800 text-white hover:bg-amber-700 cursor-pointer"
               >
-                Invite Collaborators
+                Invite Collaborator(s)
               </button>
             </div>
           </>
@@ -169,7 +170,7 @@ const CreateProjectModal = ({ onClose }) => {
             <CheckCircle className="mx-auto text-amber-800 mb-4" size={64} />
             <h2 className="text-lg font-semibold text-gray-800 mb-2">Project Created Successfully</h2>
             <p className="text-sm text-gray-500 mb-6">
-              Create, invite, and manage tasks for your new project.
+              Create, track, add and review logs for your project.
             </p>
             <button
               onClick={onClose}

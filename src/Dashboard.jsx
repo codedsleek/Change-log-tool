@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare, MoreHorizontal, Share, LogOut, X, ArrowRight } from 'lucide-react';
+import {
+  Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare,
+  MoreHorizontal, Share, LogOut, X, ArrowRight, MessageSquare as MsgIcon
+} from 'lucide-react';
 import CreateProjectModal from "./components/CreateProjectModal";
+import SingleProjectPanel from "./components/SingleProjectPanel.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,18 +14,15 @@ export default function Dashboard() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [modalSearchQuery, setModalSearchQuery] = useState('');
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [newProjectIcon, setNewProjectIcon] = useState(null);
 
+  const [isProjectOpen, setIsProjectOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const dropdownRef = useRef(null);
   const commentsSidebarRef = useRef(null);
   const searchModalRef = useRef(null);
 
-  
-
-  // Handle outside clicks + ESC key
+  // Close dropdown / sidebars when clicking outside + ESC
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -42,6 +42,7 @@ export default function Dashboard() {
         setShowCommentsSidebar(false);
         setShowSearchModal(false);
         setShowNewProjectModal(false);
+        setIsProjectOpen(false);
       }
     }
 
@@ -92,11 +93,10 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-white">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-200">
+    <div className="flex h-screen w-full bg-white overflow-hidden">
+      {/* Left Sidebar */}
+      <div className="w-64 min-h-screen flex flex-col border-r border-gray-200">
+        <div className="p-4">
           <div className="flex items-center space-x-2">
             <div className="w-6 h-6 bg-amber-800 rounded-sm flex items-center justify-center">
               <span className="text-white text-xs font-bold">K</span>
@@ -105,16 +105,16 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* New Project Button */}
         <div className="p-4">
-          <button className="w-full flex items-center space-x-2 bg-amber-800 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors"
-            onClick={() => setShowNewProjectModal(true)}>
+          <button
+            onClick={() => setShowNewProjectModal(true)}
+            className="w-full flex items-center space-x-2 bg-amber-800 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors"
+          >
             <Plus size={16} />
             <span>New Project</span>
           </button>
         </div>
 
-        {/* Navigation Items */}
         <div className="flex-1 px-4">
           <div className="space-y-1">
             {sidebarItems.map((item, index) => (
@@ -122,9 +122,7 @@ export default function Dashboard() {
                 key={index}
                 onClick={item.onClick}
                 className={`w-full flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors ${
-                  item.active 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  item.active ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
                 <item.icon size={16} />
@@ -140,7 +138,10 @@ export default function Dashboard() {
                 <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
                 <span>Website Redesign</span>
               </button>
-              <button className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+              <button
+                onClick={() => { setSelectedProject(projects[0]); setIsProjectOpen(true); }}
+                className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
+              >
                 <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
                 <span>Website Redesign</span>
               </button>
@@ -152,8 +153,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Bottom Items */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 ">
           <div className="space-y-1">
             {bottomSidebarItems.map((item, index) => (
               <button
@@ -168,153 +168,167 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Home</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => setShowCommentsSidebar(!showCommentsSidebar)}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm"
-              >
-                <MessageSquare size={16} />
-                <span>New Comments</span>
-              </button>
-              <div className="relative" ref={dropdownRef}>
-                <button 
-                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  className="w-8 h-8 bg-purple-500 rounded-full hover:bg-purple-600 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-                ></button>
-                
-                {/* Profile Dropdown */}
-                {showProfileDropdown && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    {/* Header */}
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <MessageSquare size={16} className="text-gray-400" />
-                          <span className="text-sm text-gray-600">New Comments</span>
-                        </div>
-                        <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
-                      </div>
-                    </div>
-                    
-                    {/* Profile Info */}
-                    <div className="px-4 py-3 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Avatar</span>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <Share size={16} />
-                        </button>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Username</span>
-                          <span className="text-sm font-medium text-gray-900">Max D. Praise</span>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Email</span>
-                          <span className="text-sm text-gray-900">firstduke@gmail.com</span>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-500">Password</span>
-                          <span className="text-sm text-gray-900">••••••••</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Sign out */}
-                    <div className="px-4 py-3 border-t border-gray-200">
-                      <button className="flex items-center space-x-2 text-red-600 hover:text-red-700 text-sm w-full">
-                        <LogOut size={16} />
-                        <span>Signout</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 p-6">
-          <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Welcome to Khronicle</h1>
-            <p className="text-gray-600">Track project changes and collaborate with your team through comments</p>
-          </div>
-
-          {/* My Projects Section */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-900">My Projects</h2>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search projects..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800"
-                  />
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col relative h-full overflow-y-auto min-h-screen">
+        {!isProjectOpen ? (
+          <>
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">Home</span>
                 </div>
-                <button className="flex items-center space-x-2 bg-amber-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors"
-                onClick={() => setShowNewProjectModal(true)}>
-                  <Plus size={16} />
-                  <span>New Project</span>
-                </button>
+
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setShowCommentsSidebar(!showCommentsSidebar)}
+                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm"
+                  >
+                    <MessageSquare size={16} />
+                    <span>New Comments</span>
+                  </button>
+
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                      className="w-8 h-8 bg-purple-500 rounded-full hover:bg-purple-600 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                    />
+                    {showProfileDropdown && (
+                      <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                        {/* Header */}
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <MsgIcon size={16} className="text-gray-400" />
+                              <span className="text-sm text-gray-600">New Comments</span>
+                            </div>
+                            <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
+                          </div>
+                        </div>
+
+                        {/* Profile Info */}
+                        <div className="px-4 py-3 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-500">Avatar</span>
+                            <button className="text-gray-400 hover:text-gray-600">
+                              <Share size={16} />
+                            </button>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-500">Username</span>
+                              <span className="text-sm font-medium text-gray-900">Max D. Praise</span>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-500">Email</span>
+                              <span className="text-sm text-gray-900">firstduke@gmail.com</span>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-500">Password</span>
+                              <span className="text-sm text-gray-900">••••••••</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Sign out */}
+                        <div className="px-4 py-3 border-t border-gray-200">
+                          <button className="flex items-center space-x-2 text-red-600 hover:text-red-700 text-sm w-full">
+                            <LogOut size={16} />
+                            <span>Signout</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Project Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {projects.map((project) => (
-                <div key={project.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
-                      <h3 className="font-medium text-gray-900 text-sm">{project.title}</h3>
+            {/* Dashboard Content */}
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="mb-8">
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">Welcome to Khronicle</h1>
+                <p className="text-gray-600">Track project changes and collaborate with your team through comments</p>
+              </div>
+
+              {/* My Projects Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-medium text-gray-900">My Projects</h2>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search projects..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-amber-800 focus:border-amber-800"
+                      />
                     </div>
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <MoreHorizontal size={16} />
+                    <button
+                      className="flex items-center space-x-2 bg-amber-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors"
+                      onClick={() => setShowNewProjectModal(true)}
+                    >
+                      <Plus size={16} />
+                      <span>New Project</span>
                     </button>
                   </div>
-                  
-                  <p className="text-gray-600 text-xs mb-4 leading-relaxed">{project.description}</p>
-                  
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Clock size={12} />
-                      <span>{project.daysAgo} days ago</span>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1">
-                        <Users size={12} />
-                        <span>{project.people}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <MessageSquare size={12} />
-                        <span>{project.comments}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              ))}
+
+                {/* Project Cards (restored layout) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {projects.map((project) => (
+                    <div key={project.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                          <h3 className="font-medium text-gray-900 text-sm">{project.title}</h3>
+                        </div>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <MoreHorizontal size={16} />
+                        </button>
+                      </div>
+
+                      <p className="text-gray-600 text-xs mb-4 leading-relaxed">{project.description}</p>
+
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Clock size={12} />
+                          <span>{project.daysAgo} days ago</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-1">
+                            <Users size={12} />
+                            <span>{project.people}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MessageSquare size={12} />
+                            <span>{project.comments}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          // Show SingleProjectPanel (when a project is open)
+          <SingleProjectPanel
+            project={selectedProject}
+            isOpen={isProjectOpen}
+            commentsOpen={showCommentsSidebar}
+            onClose={() => setIsProjectOpen(false)}
+          />
+        )}
       </div>
 
-      {/* Comments Sidebar */}
+      {/* Comments Sidebar (animated) */}
       <AnimatePresence>
         {showCommentsSidebar && (
           <motion.div
@@ -326,20 +340,15 @@ export default function Dashboard() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-40 overflow-y-auto"
           >
-            {/* Comments Header */}
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-medium text-gray-900">New Comments</h2>
-                <button 
-                  onClick={() => setShowCommentsSidebar(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
+                <button onClick={() => setShowCommentsSidebar(false)} className="text-gray-400 hover:text-gray-600">
                   <X size={20} />
                 </button>
               </div>
             </div>
 
-            {/* Comments List */}
             <div className="p-4 space-y-4">
               {comments.map((comment) => (
                 <div key={comment.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
@@ -350,16 +359,10 @@ export default function Dashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {comment.user}
-                      </p>
+                      <p className="text-sm font-medium text-gray-900 truncate">{comment.user}</p>
                       <p className="text-xs text-gray-500">{comment.timestamp}</p>
                     </div>
-                    {comment.message ? (
-                      <p className="text-sm text-gray-600">{comment.message}</p>
-                    ) : (
-                      <p className="text-sm text-gray-400 italic">No message</p>
-                    )}
+                    {comment.message ? <p className="text-sm text-gray-600">{comment.message}</p> : <p className="text-sm text-gray-400 italic">No message</p>}
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-xs text-gray-400">Website Redesign</span>
                       <button className="text-gray-400 hover:text-gray-600">
@@ -369,7 +372,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
-              
+
               <div className="text-center py-4">
                 <p className="text-sm text-gray-500">Keep up the work</p>
               </div>
@@ -378,23 +381,13 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-
       {/* New Project Modal */}
-      {showNewProjectModal && (
-        <CreateProjectModal
-          onClose={() => setShowNewProjectModal(false)}
-        />
-      )}
-
-
-
-
+      {showNewProjectModal && <CreateProjectModal onClose={() => setShowNewProjectModal(false)} />}
 
       {/* Search Modal */}
       {showSearchModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-black/50 backdrop-opacity-75  animate-fadeIn">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-black/50 backdrop-opacity-75 animate-fadeIn">
           <div ref={searchModalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden">
-            {/* Search Header */}
             <div className="p-6 border-b border-gray-200">
               <div className="relative">
                 <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -409,7 +402,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Search Results */}
             <div className="overflow-y-auto max-h-[60vh]">
               {/* Projects */}
               <div className="p-6">
