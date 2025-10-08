@@ -12,6 +12,7 @@ import {
 export default function SingleProjectPanel({ project, isOpen, onClose }) {
   const panelRef = useRef(null);
   const [showNewLogPopup, setShowNewLogPopup] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [openLogId, setOpenLogId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [commentsByLog, setCommentsByLog] = useState({

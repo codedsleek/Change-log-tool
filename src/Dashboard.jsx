@@ -5,9 +5,10 @@ import {
 } from 'lucide-react';
 import CreateProjectModal from "./components/CreateProjectModal";
 import SingleProjectPanel from "./components/SingleProjectPanel.jsx";
+import SettingsModal from "./components/SettingsModal.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Dashboard() {
+export default function Dashboard({ onOpenSettings }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showCommentsSidebar, setShowCommentsSidebar] = useState(false);
@@ -21,6 +22,11 @@ export default function Dashboard() {
   const dropdownRef = useRef(null);
   const commentsSidebarRef = useRef(null);
   const searchModalRef = useRef(null);
+
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const handleOpenSettings = () => setShowSettingsModal(true);
+  const handleCloseSettings = () => setShowSettingsModal(false);
+
 
   // Close dropdown / sidebars when clicking outside + ESC
   useEffect(() => {
@@ -157,15 +163,24 @@ export default function Dashboard() {
 
         <div className="p-4 ">
           <div className="space-y-1">
-            {bottomSidebarItems.map((item, index) => (
+            <div className="space-y-1">
               <button
-                key={index}
+                onClick={() => alert('Support clicked')}
                 className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
               >
-                <item.icon size={16} />
-                <span>{item.label}</span>
+                <HelpCircle size={16} />
+                <span>Support</span>
               </button>
-            ))}
+
+              <button
+                onClick={handleOpenSettings}
+                className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors cursor-pointer"
+              >
+                <Settings size={16} />
+                <span>Settings</span>
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -332,6 +347,7 @@ export default function Dashboard() {
               isOpen={isProjectOpen}
               commentsOpen={showCommentsSidebar}
               onClose={() => setIsProjectOpen(false)}
+              onOpenSettings={handleOpenSettings}
             />
           </div>
         )}
@@ -473,6 +489,9 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      )}
+      {showSettingsModal && (
+        <SettingsModal open={showSettingsModal} onClose={handleCloseSettings} />
       )}
     </div>
   );

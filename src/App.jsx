@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import Dashboard from "./Dashboard";
+import SingleProjectPanel from "./components/SingleProjectPanel";
+import SettingsModal from "./components/SettingsModal";
+
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,6 +34,8 @@ const signupSchema = z
 });
 
 function App() {
+  const [showSettings, setShowSettings] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [mode, setMode] = useState("signup"); // default 
   const [formData, setFormData] = useState({
     username: "",
@@ -49,6 +55,7 @@ function App() {
     );
     setErrors({});
   };
+
 
 
   // Handle input changes + validation
@@ -118,13 +125,9 @@ function App() {
 
 
     if (result.success) {
-      if (mode === "signin") {
-        // Navigate to Dashboard on successful sign-in
-        navigate("/dashboard");
-      }
-      alert(
-        `${mode === "signup" ? "Account created" : "Signed in"} successfully!`
-      );
+      alert(`${mode === "signup" ? "Account created" : "Signed in"} successfully!`);
+      localStorage.setItem("isSignedIn", "true");
+      window.location.reload(); // refresh to show dashboard
     } else {
       const fieldErrors = {};
       result.error.errors.forEach((err) => {
@@ -153,151 +156,21 @@ function App() {
       formData.password
     );
   }
-}, [formData, errors, mode]);  // <-- CHANGED: dependencies stay the same
-
-
-
-
-
-
-
-  
+}, [formData, errors, mode]); 
 
  return (
-    <div className="flex items-center justify-center min-h-screen ">
+  <div className="flex items-center justify-center min-h-screen">
+    {/* ==========================
+         AUTH SCREENS (Sign In / Sign Up)
+    =========================== */}
+    {!localStorage.getItem("isSignedIn") ? (
       <div className="bg-white mt-6 p-8 rounded-xl shadow-xl w-full max-w-md text-center">
-      
-        <div className="bg-white  w-full max-w-md text-center">
-          <h1 className="text-left text-xl font-bold text-gray-900">Welcome to Khronicle</h1>
-          <p className="text-left text-sm text-gray-600 mt-2">
-            Start managing your projects log, and collaborate with your team
-          </p>
-
-          {/* Tabs */}
-          <div className="flex bg-gray-200 rounded-sm overflow-hidden mt-6">
-            <button
-              className={`flex-1 py-2 font-semibold ${
-                mode === "signup"
-                  ? "bg-white text-gray-900 rounded-sm shadow-sm"
-                  : "text-gray-600"
-              }`}
-              onClick={() => handleModeSwitch("signup")}
-            >
-              Sign Up
-            </button>
-            <button
-              className={`flex-1 py-2 font-semibold ${
-                mode === "signin"
-                  ? "bg-white text-gray-900 rounded-sm shadow-sm"
-                  : "text-gray-600"
-              }`}
-              onClick={() => handleModeSwitch("signin")}
-            >
-              Sign In
-            </button>
-          </div>
-
-
-          {/* Form */}
-          <form className="text-left mt-6 space-y-4" onSubmit={handleSubmit}>
-            
-            <div className="text-left mt-6">
-              {/* Username */}
-              
-              {mode === "signup" && (
-                <div className="w-full mb-4">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    value={formData.username}
-                    onChange={(e) => handleChange("username", e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                  {errors.username && (
-                    <p className="text-red-500 text-xs mt-1">{errors.username}</p>
-                  )}
-                </div>
-              )}
-              {/* Email */}
-              <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {errors.email && 
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                }
-              </div>
-              {/* Password */}
-              <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                )}
-              </div>
-              {/* Confirm Password */}
-              {mode === "signup" && (
-                <div className="w-full mb-4">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Re-enter your password"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      handleChange("confirmPassword", e.target.value)
-                    }
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                  {errors.confirmPassword && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.confirmPassword}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={!isFormValid}
-                className={`w-full py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800 transition-colors ${
-              isFormValid
-                ? "bg-black text-white hover:bg-gray-800"
-                : "bg-gray-400 text-gray-200 cursor-not-allowed"
-                }`}
-              >
-                {mode === "signup" ? "Sign Up" : "Sign In"}
-              </button>
-              
-            </div>
-          </form>  
-        </div>
-
+        {/* Your existing Sign In / Sign Up JSX goes here (keep exactly as-is) */}
+        {/* ... */}
         <div className="pt-5">
-          <h2 className="text-xs  text-gray-900 mb-1">
-            Or Sign up with
-          </h2>
+          <h2 className="text-xs text-gray-900 mb-1">Or Sign up with</h2>
         </div>
-        
+
         <div className="flex items-center justify-center space-x-6 mt-6">
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
             <FontAwesomeIcon icon={faGoogle} className="w-6 h-6 text-black" />
@@ -310,9 +183,35 @@ function App() {
           </button>
         </div>
       </div>
-      
-    </div>
-  )
+    ) : (
+      /* ==========================
+         DASHBOARD / PROJECT PANEL
+      =========================== */
+      <div className="w-full h-screen bg-gray-50">
+        {!selectedProject ? (
+          <Dashboard
+            onOpenSettings={() => setShowSettings(true)}
+            onProjectSelect={setSelectedProject}
+          />
+        ) : (
+          <SingleProjectPanel
+            project={selectedProject}
+            isOpen={true}
+            onClose={() => setSelectedProject(null)}
+            onOpenSettings={() => setShowSettings(true)}
+          />
+        )}
+
+        {/* Shared Settings Modal */}
+        <SettingsModal
+          open={showSettings}
+          onClose={() => setShowSettings(false)}
+        />
+      </div>
+    )}
+  </div>
+);
+
 }
 
 export default App
