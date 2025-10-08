@@ -25,18 +25,18 @@ export default function SupportModal({ open, onClose }) {
           </button>
         </div>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-left text-sm text-gray-600">
           Send us your questions or concerns by sending us a mail
         </p>
 
         <div>
-          <label className="text-sm font-medium text-gray-700 mb-1 block">
+          <label className="text-left text-sm text-gray-700 mb-1 block">
             Reason for Reaching Out
           </label>
           <select
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800 focus:border-amber-800"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800 focus:border-amber-800 cursor-pointer"
           >
             <option value="">Select a reason</option>
             <option value="general">General Feedback</option>
@@ -49,12 +49,12 @@ export default function SupportModal({ open, onClose }) {
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
           <button
             onClick={onClose}
-            className="border border-gray-300 text-gray-600 px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition"
+            className="border border-gray-300 text-gray-600 px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition cursor-pointer"
           >
             Close
           </button>
           <button
-            className="bg-amber-800 text-white px-5 py-2 rounded-md text-sm hover:bg-amber-900 transition"
+            className="bg-amber-800 text-white px-5 py-2 rounded-md text-sm hover:bg-amber-900 transition cursor-pointer"
             onClick={() => {
               if (!reason) {
                 alert("Please select a reason before sending.");

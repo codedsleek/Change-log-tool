@@ -6,6 +6,7 @@ import {
 import CreateProjectModal from "./components/CreateProjectModal";
 import SingleProjectPanel from "./components/SingleProjectPanel.jsx";
 import SettingsModal from "./components/SettingsModal.jsx";
+import SupportModal from "./components/SupportModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Dashboard({ onOpenSettings }) {
@@ -26,6 +27,8 @@ export default function Dashboard({ onOpenSettings }) {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const handleOpenSettings = () => setShowSettingsModal(true);
   const handleCloseSettings = () => setShowSettingsModal(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+
 
 
   // Close dropdown / sidebars when clicking outside + ESC
@@ -165,12 +168,13 @@ export default function Dashboard({ onOpenSettings }) {
           <div className="space-y-1">
             <div className="space-y-1">
               <button
-                onClick={() => alert('Support clicked')}
-                className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
+                onClick={() => setShowSupportModal(true)}
+                className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors cursor-pointer"
               >
                 <HelpCircle size={16} />
                 <span>Support</span>
               </button>
+
 
               <button
                 onClick={handleOpenSettings}
@@ -493,6 +497,10 @@ export default function Dashboard({ onOpenSettings }) {
       {showSettingsModal && (
         <SettingsModal open={showSettingsModal} onClose={handleCloseSettings} />
       )}
+      {showSupportModal && (
+        <SupportModal open={showSupportModal} onClose={() => setShowSupportModal(false)} />
+      )}
+
     </div>
   );
 }
