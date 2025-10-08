@@ -1,137 +1,448 @@
-import React, { useEffect, useRef } from "react";
-import { X, ArrowLeft, Users, Share2, FileText, Clock } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  Users,
+  Share2,
+  FileText,
+  Clock,
+  MessageSquare,
+  MoreHorizontal,
+} from "lucide-react";
 
-export default function SingleProjectPanel({ project, isOpen, commentsOpen = false, onClose }) {
+export default function SingleProjectPanel({ project, isOpen, onClose }) {
   const panelRef = useRef(null);
+  const [showNewLogPopup, setShowNewLogPopup] = useState(false);
+  const [openLogId, setOpenLogId] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [commentsByLog, setCommentsByLog] = useState({
+    1: [
+      {
+        id: 1,
+        author: "Samuel Saidu",
+        date: "18/09/2025",
+        text: "Looks great! The mobile version is much better now.",
+      },
+      {
+        id: 2,
+        author: "Samuel Saidu",
+        date: "18/09/2025",
+        text: "Looks great! The mobile version is much better now.",
+      },
+      {
+        id: 3,
+        author: "Samuel Saidu",
+        date: "18/09/2025",
+        text: "Looks great! The mobile version is much better now.",
+      },
+    ],
+    2: [
+      {
+        id: 1,
+        author: "Samuel Saidu",
+        date: "18/09/2025",
+        text: "Looks great! The mobile version is much better now.",
+      },
+    ],
+  });
+  const [newCommentByLog, setNewCommentByLog] = useState({});
+  const [logDetails, setLogDetails] = useState([""]);
 
-  // close on ESC (only when open)
+  const addDetail = () => {
+    setLogDetails((prev) => [...prev, ""]);
+  };
+
+  const removeDetail = (index) => {
+    setLogDetails((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      return updated.length ? updated : [""]; 
+    });
+  };
+
+
+  const handleDetailChange = (index, value) => {
+    setLogDetails((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
   useEffect(() => {
-    if (!isOpen) return;
-    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [isOpen, onClose]);
+  const handleEsc = (e) => {
+    if (e.key !== "Escape") return;
+    if (showNewLogPopup) setShowNewLogPopup(false);
+    else if (isOpen) onClose();
+  };
+  window.addEventListener("keydown", handleEsc);
+  return () => window.removeEventListener("keydown", handleEsc);
+  }, [showNewLogPopup, isOpen, onClose]);
+
 
   if (!isOpen) return null;
+
+  const handleAddComment = (logId) => {
+    const text = (newCommentByLog[logId] || "").trim();
+    if (!text) return;
+
+    const newComment = {
+      id: crypto.randomUUID(),
+      author: "You",
+      date: new Date().toLocaleDateString("en-GB"),
+      text,
+    };
+
+    setCommentsByLog((prev) => ({
+      ...prev,
+      [logId]: [...(prev[logId] || []), newComment],
+    }));
+
+    setNewCommentByLog((prev) => ({ ...prev, [logId]: "" }));
+  };
+
+  const logs = [
+    {
+      id: 1,
+      title: "Homepage Layout Complete",
+      subtype: "Design Review",
+      bullets: [
+        "Implemented responsive grid layout for hero section",
+        "Refined typography for mobile responsiveness",
+        "Tested layout in Safari and Edge browsers",
+      ],
+      date: "18/09/2025",
+      daysAgo: "2 days ago",
+    },
+    {
+      id: 2,
+      title: "Dashboard Styling Update",
+      subtype: "UI Review",
+      bullets: [
+        "Updated dashboard sidebar icons",
+        "Improved mobile spacing consistency",
+      ],
+      date: "18/09/2025",
+      daysAgo: "2 days ago",
+    },
+  ];
 
   return (
     <div
       ref={panelRef}
-      className="flex-1 flex flex-col  bg-white shadow-xl border-l border-gray-200"
+      className="flex-1 flex flex-col bg-white shadow-xl border-l border-gray-200 overflow-y-auto"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3 border-b bg-white">
-        {/* Left side - Back button */}
         <div className="flex items-center">
           <button
             onClick={onClose}
-            className="flex items-center text-gray-600 hover:text-amber-800 text-sm font-medium "
+            className="flex items-center text-gray-600 hover:text-amber-800 text-sm font-medium"
           >
             <ArrowLeft size={18} className="mr-2" />
             Back
           </button>
         </div>
 
-        {/* Right side - Actions + Profile */}
         <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-4">
-            <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 cursor-pointer">
-              <Users size={16} className="mr-1" />
-              Invite People
-            </button>
-            <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 cursor-pointer">
-              <Share2 size={16} className="mr-1" />
-              Share Project
-            </button>
-            <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 cursor-pointer">
-              <FileText size={16} className="mr-1" />
-              Export PDF
-            </button>
-          </div>
-
-          {/* Profile avatar */}
-          <button className="w-8 h-8 rounded-sm bg-purple-500 hover:bg-purple-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-800 focus:ring-offset-2 cursor-pointer"></button>
-
-          
+          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800">
+            <Users size={16} className="mr-1" /> Invite People
+          </button>
+          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800">
+            <Share2 size={16} className="mr-1" /> Share Project
+          </button>
+          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800">
+            <FileText size={16} className="mr-1" /> Export PDF
+          </button>
         </div>
       </div>
 
-
-      {/* Body */}
       {/* Body */}
       <div className="p-6 overflow-y-auto">
-        {/* Title and subtitle */}
-        <div className="text-left mb-3">
+        <div className="text-center mb-6">
           <h1 className="text-xl font-semibold text-gray-900">
             {project?.title ?? "Wren Finance App"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1 max-w-xl mx-auto">
+          <p className="text-sm text-gray-500 mt-1 max-w-3xl mx-auto">
             {project?.description ??
-              "Wren is a personal finance app that helps you track bills, stay ahead of due dates, get clear summaries, and avoid costly late fees."}
+              "Wren is a personal finance app that helps you track bills, stay ahead of due dates, and avoid late fees."}
           </p>
         </div>
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          {/* Search Bar */}
+          <div className="col-span-2">
+            <input
+              type="text"
+              placeholder="Search Logs..."
+              className="w-full border border-gray-200 rounded-lg px-4 h-8 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+            />
+          </div>
 
-        {/* Meta row + New Log button */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-6 text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <Clock size={14} />
-              <span>{project?.daysAgo ?? "2"} days ago</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Users size={14} />
-              <span>{project?.people ?? "3"} people</span>
+          {/* New Log Button */}
+          <div className="flex items-center justify-end">
+            <button
+              onClick={() => setShowNewLogPopup(true)}
+              className="bg-amber-800 text-white px-8 h-8 rounded-sm text-sm hover:bg-amber-900 transition cursor-pointer"
+            >
+              + New Log
+            </button>
+          </div>
+        </div>
+        {/* New Log Popup */}
+        {showNewLogPopup && (
+          <div
+            className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowNewLogPopup(false);
+                setLogDetails([""]);
+                setShowSuccess(false);
+              }
+            }}
+          >
+            <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 transform transition-all duration-300 scale-100 animate-in fade-in-0 zoom-in-95">
+              {!showSuccess ? (
+                <>
+                  <h2 className="text-left text-lg font-semibold text-gray-800 mb-4">
+                    Create a New Log Entry
+                  </h2>
+
+                  <div className="space-y-4">
+                    {/* Title */}
+                    <div>
+                      <label className="block text-left text-sm text-gray-700 mb-1">
+                        Title
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter log entry title"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                      />
+                    </div>
+
+                    {/* Trigger */}
+                    <div>
+                      <label className="block text-left text-sm text-gray-700 mb-1">
+                        Trigger
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter log trigger"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                      />
+                    </div>
+
+                    {/* Log Details */}
+                    <div>
+                      <label className="text-left block text-sm text-gray-700 mb-2">
+                        Log Details (Bullet Points)
+                      </label>
+
+                      <div className="space-y-3">
+                        {logDetails.map((detail, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <textarea
+                              placeholder={`Enter log detail`}
+                              rows={2}
+                              value={detail}
+                              onChange={(e) => handleDetailChange(index, e.target.value)}
+                              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                            />
+                            <button
+                              onClick={() => removeDetail(index)}
+                              className="text-gray-400 hover:text-red-500 transition cursor-pointer"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between mt-6 border-t border-gray-100 pt-4">
+                    {/* Left side: add new detail */}
+                    <button
+                      onClick={() => setLogDetails((prev) => [...prev, ""])}
+                      className="text-sm text-amber-700 hover:underline cursor-pointer"
+                    >
+                      + Add a new detail
+                    </button>
+
+                    {/* Right side: action buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setShowSuccess(true)}
+                        className="bg-amber-800 text-white px-5 py-2 rounded-md text-sm hover:bg-amber-900 transition cursor-pointer"
+                      >
+                        Add Entry
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowNewLogPopup(false);
+                          setLogDetails([""]);
+                        }}
+                        className="border border-gray-300 text-gray-600 px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // ✅ Success View
+                <div className="flex flex-col items-center justify-center text-center py-10">
+                  <div className="text-amber-700 mb-6">
+                    <FileText size={64} strokeWidth={1.2} />
+                  </div>
+
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                    Log added successfully
+                  </h2>
+                  <p className="text-gray-500 mb-8">
+                    Create, add and review logs to your project.
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      setShowSuccess(false);
+                      setShowNewLogPopup(false);
+                      setLogDetails([""]);
+                    }}
+                    className="bg-amber-800 text-white w-3/4 py-3 rounded-md text-sm hover:bg-amber-900 transition cursor-pointer"
+                  >
+                    Proceed
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-          
-        </div>
+        )}
 
-        {/* Search logs */}
-        <div className="grid grid-cols-3 items-center gap-3 mb-6 ">
-          <input
-            type="text"
-            placeholder="Search Logs..."
-            className="col-span-2 h-10 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
-          />
-          <button className="h-10 bg-amber-800 text-white px-4 py-2 rounded-sm text-xs hover:bg-amber-900 transition cursor-pointer">
-            + New Log
-          </button>
-        </div>
+
+
+
+
 
         {/* Logs list */}
         <div className="space-y-6">
-          {[1, 2].map((i) => (
-            <article
-              key={i}
-              className="border border-gray-200 rounded-lg p-5 bg-white shadow-sm"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-800">
-                    Homepage Layout Complete
-                  </h3>
-                  <p className="text-xs text-left text-gray-500">Design Review</p>
+          {logs.map((log) => {
+            const comments = commentsByLog[log.id] || [];
+            return (
+              <article
+                key={log.id}
+                className="border border-gray-200 rounded-lg p-5 bg-white shadow-sm "
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      {log.title}
+                    </h3>
+                    <p className="text-xs text-left text-gray-500">
+                      {log.subtype}
+                    </p>
+                  </div>
+
+                  <button className="text-gray-400 hover:text-gray-600 p-1 rounded">
+                    <MoreHorizontal size={16} />
+                  </button>
                 </div>
-                <div className="text-xs text-gray-400">2 comments</div>
-              </div>
 
-              <ul className="list-disc list-inside text-sm text-left text-gray-600 space-y-1 mb-3">
-                <li>Implemented responsive grid layout for hero section</li>
-                <li>Refined typography for mobile responsiveness</li>
-                <li>Tested layout in Safari and Edge browsers</li>
-              </ul>
+                <ul className="list-disc list-inside text-sm text-left text-gray-600 space-y-1 mb-3">
+                  {log.bullets.map((b, idx) => (
+                    <li key={idx}>{b}</li>
+                  ))}
+                </ul>
 
-              <div className="flex justify-between items-center text-xs text-gray-400">
-                <span>18/09/2025</span>
-                <button className="text-amber-800 text-xs hover:underline">
-                  + New Log
-                </button>
-              </div>
-            </article>
-          ))}
+                <div className="flex justify-between items-center text-xs text-gray-400">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Clock size={14} />
+                    <span>{log.date}</span>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Clock size={14} />
+                      <span>{log.daysAgo}</span>
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        setOpenLogId(openLogId === log.id ? null : log.id)
+                      }
+                      className="inline-flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 transition cursor-pointer"
+                    >
+                      <MessageSquare size={12} />
+                      <span>{comments.length} Comments</span>
+                    </button>
+                  </div>
+                </div>
+
+                {openLogId === log.id && (
+                  <div className="mt-4 border-t pt-4">
+                    {/* Scrollable comment list */}
+                    <div className="space-y-3 overflow-y-auto pr-2 max-h-60">
+                      {comments.map((c) => (
+                        <div key={c.id} className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-700">
+                            {c.author
+                              .split(" ")
+                              .map((s) => s[0])
+                              .slice(0, 2)
+                              .join("")}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold text-gray-700">
+                                {c.author}
+                              </p>
+                              <p className="text-xs text-gray-400">{c.date}</p>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {c.text}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add comment */}
+                    <div className="mt-4">
+                      <textarea
+                        maxLength={200}
+                        value={newCommentByLog[log.id] || ""}
+                        onChange={(e) =>
+                          setNewCommentByLog((prev) => ({
+                            ...prev,
+                            [log.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Write a comment..."
+                        rows={3}
+                        className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                      />
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          onClick={() => handleAddComment(log.id)}
+                          className="bg-amber-800 text-white px-4 py-2 rounded-md text-sm hover:bg-amber-900 transition"
+                        >
+                          Add comment
+                        </button>
+                        <button
+                          onClick={() => setOpenLogId(null)}
+                          className="border border-gray-300 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
-
     </div>
   );
 }

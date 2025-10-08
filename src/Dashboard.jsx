@@ -328,7 +328,7 @@ export default function Dashboard() {
           <div className="flex-1 h-full overflow-hidden">
             <SingleProjectPanel
               key={selectedProject?.id}
-              project={selectedProject}
+              project={selectedProject|| {}}
               isOpen={isProjectOpen}
               commentsOpen={showCommentsSidebar}
               onClose={() => setIsProjectOpen(false)}
