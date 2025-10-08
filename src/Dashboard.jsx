@@ -57,9 +57,15 @@ export default function Dashboard() {
 
   const [projects] = useState([
     { id: 1, title: 'Website Redesign', description: 'Complete overhaul of company website with new colors and assets', daysAgo: 2, people: 3, comments: 2 },
-    { id: 2, title: 'Website Redesign', description: 'Complete overhaul of company website with new colors and assets', daysAgo: 2, people: 3, comments: 5 },
+    { id: 2, title: 'Wren bill managing mobile app', description: 'Wren is a personal finance app that helps you track bills, stay ahead of due dates, get clear summaries, and avoid costly late fees.', daysAgo: 2, people: 3, comments: 5 },
     { id: 3, title: 'Website Redesign', description: 'Complete overhaul of company website with new colors and assets', daysAgo: 2, people: 3, comments: 2 }
   ]);
+
+  const handleOpenProject = (project) => {
+    console.log('open project', project?.id, project?.title);
+    setSelectedProject(project);
+    setIsProjectOpen(true);
+  };
 
   const [comments] = useState([
     { id: 1, user: 'Samuel Saidu', timestamp: '09:00 AM', message: 'Looks great! The mobile version is much better now.' },
@@ -95,7 +101,7 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
       {/* Left Sidebar */}
-      <div className="w-64 min-h-screen flex flex-col border-r border-gray-200">
+      <div className="w-64 h-full shrink-0 flex flex-col border-r border-gray-200">
         <div className="p-4">
           <div className="flex items-center space-x-2">
             <div className="w-6 h-6 bg-amber-800 rounded-sm flex items-center justify-center">
@@ -132,24 +138,20 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-8">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Projects</h3>
+            <h3 className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Projects</h3>
             <div className="space-y-1">
-              <button className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
-                <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
-                <span>Website Redesign</span>
-              </button>
-              <button
-                onClick={() => { setSelectedProject(projects[0]); setIsProjectOpen(true); }}
-                className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
-              >
-                <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
-                <span>Website Redesign</span>
-              </button>
-              <button className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
-                <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
-                <span>Website Redesign</span>
-              </button>
+              {projects.map((proj) => (
+                <button
+                  key={proj.id}
+                  onClick={() => handleOpenProject(proj)}
+                  className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
+                >
+                  <div className="w-4 h-4 bg-gray-300 rounded-sm flex-shrink-0"></div>
+                  <span className='truncate block text-left w-full'>{proj.title}</span>
+                </button>
+              ))}
             </div>
+
           </div>
         </div>
 
@@ -169,7 +171,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col relative h-full overflow-y-auto min-h-screen">
+      <div className="flex-1 flex flex-col relative min-h-0">
         {!isProjectOpen ? (
           <>
             {/* Header */}
@@ -249,9 +251,9 @@ export default function Dashboard() {
 
             {/* Dashboard Content */}
             <div className="flex-1 p-6 overflow-y-auto">
-              <div className="mb-8">
-                <h1 className="text-2xl font-semibold text-gray-900 mb-2">Welcome to Khronicle</h1>
-                <p className="text-gray-600">Track project changes and collaborate with your team through comments</p>
+              <div className="text-left mb-8">
+                <h1 className="text-xl font-semibold text-gray-900 mb-2">Welcome to Khronicle</h1>
+                <p className="text-gray-600 text-xs">Track project changes and collaborate with your team through comments</p>
               </div>
 
               {/* My Projects Section */}
@@ -282,7 +284,11 @@ export default function Dashboard() {
                 {/* Project Cards (restored layout) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {projects.map((project) => (
-                    <div key={project.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div key={project.id}
+                    onClick={() => {
+                      handleOpenProject(project)
+                    }}
+                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-2">
                           <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
@@ -319,12 +325,15 @@ export default function Dashboard() {
           </>
         ) : (
           // Show SingleProjectPanel (when a project is open)
-          <SingleProjectPanel
-            project={selectedProject}
-            isOpen={isProjectOpen}
-            commentsOpen={showCommentsSidebar}
-            onClose={() => setIsProjectOpen(false)}
-          />
+          <div className="flex-1 h-full overflow-hidden">
+            <SingleProjectPanel
+              key={selectedProject?.id}
+              project={selectedProject}
+              isOpen={isProjectOpen}
+              commentsOpen={showCommentsSidebar}
+              onClose={() => setIsProjectOpen(false)}
+            />
+          </div>
         )}
       </div>
 
@@ -420,6 +429,7 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
+              
 
               {/* Logs */}
               <div className="p-6 border-t border-gray-200">
