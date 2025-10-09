@@ -204,7 +204,7 @@ export default function Dashboard({ onOpenSettings }) {
                   <button
                     onClick={() => setShowCommentsSidebar(!showCommentsSidebar)}
                     className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm cursor-pointer"
-                  >
+                  > 
                     <MessageSquare size={16} />
                     <span>New Comments</span>
                   </button>
