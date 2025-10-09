@@ -136,7 +136,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
         <div className="flex items-center">
           <button
             onClick={onClose}
-            className="flex items-center text-gray-600 hover:text-amber-800 text-sm font-medium"
+            className="flex items-center text-gray-600 hover:text-amber-800 hover:underline text-sm font-medium cursor-pointer"
           >
             <ArrowLeft size={18} className="mr-2" />
             Back
@@ -144,25 +144,25 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
         </div>
 
         <div className="flex items-center space-x-6">
-          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800">
+          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer">
             <Users size={16} className="mr-1" /> Invite People
           </button>
-          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800">
+          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer">
             <Share2 size={16} className="mr-1" /> Share Project
           </button>
-          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800">
+          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer">
             <FileText size={16} className="mr-1" /> Export PDF
           </button>
         </div>
       </div>
 
       {/* Body */}
-      <div className="p-6 overflow-y-auto">
-        <div className="text-center mb-6">
+      <div className="text-left p-6 overflow-y-auto">
+        <div className=" mb-6">
           <h1 className="text-xl font-semibold text-gray-900">
             {project?.title ?? "Wren Finance App"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1 max-w-3xl mx-auto">
+          <p className="text-sm text-gray-500 mt-1 max-w-3xl ">
             {project?.description ??
               "Wren is a personal finance app that helps you track bills, stay ahead of due dates, and avoid late fees."}
           </p>
@@ -190,7 +190,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
         {/* New Log Popup */}
         {showNewLogPopup && (
           <div
-            className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 bg-black/50 backdrop-opacity-75 animate-fadeIn"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 setShowNewLogPopup(false);

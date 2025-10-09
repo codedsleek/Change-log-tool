@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import Dashboard from "./Dashboard";
-import SingleProjectPanel from "./components/SingleProjectPanel";
-import SettingsModal from "./components/SettingsModal";
-
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faGear, faLifeRing } from "@fortawesome/free-solid-svg-icons";
+import logo from "./assets/logo.png"; // ✅ using imported logo like your old code
 
 
 // Zod schema for validation
@@ -25,7 +23,7 @@ const signupSchema = z
       .min(8, "Password must be at least 8 characters long")
       .regex(/[A-Z]/, "Password must include at least one uppercase letter")
       .regex(/[0-9]/, "Password must include at least one number")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must include at least one symbol"),
+      .regex(/[!@#$%^&*(),.?\":{}|<>]/, "Password must include at least one symbol"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -34,9 +32,7 @@ const signupSchema = z
 });
 
 function App() {
-  const [showSettings, setShowSettings] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [mode, setMode] = useState("signup"); // default 
+  const [mode, setMode] = useState("signup");
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -56,78 +52,66 @@ function App() {
     setErrors({});
   };
 
-
-
-  // Handle input changes + validation
   const handleChange = (field, value) => {
     const updatedFormData = { ...formData, [field]: value };
     setFormData(updatedFormData);
 
+    const newErrors = { ...errors };
 
-  // Per-field validation
-  const newErrors = { ...errors }; 
+    if (field === "email") {
+      const emailSchema = z.string().email("Enter a valid email address");
+      const result = emailSchema.safeParse(value);
 
-  if (field === "email") {
-    const emailSchema = z.string().email("Enter a valid email address");
-    const result = emailSchema.safeParse(value);
-    if (!result.success) {
-      newErrors.email = result.error.errors[0].message;
-    } else {
-      delete newErrors.email;
-    }
-  } else if (field === "password" || field === "confirmPassword") {
-    const passwordSchema = z.string() 
-      
-      .min(8, "Password must be at least 8 characters long")
-      .regex(/[A-Z]/, "Password must include at least one uppercase letter")
-      .regex(/[0-9]/, "Password must include at least one number")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must include at least one symbol")
-    
+      if (value.trim() === "") {
+        // Empty field clears error
+        delete newErrors.email;
+      } else if (!result.success) {
+        // Invalid email live feedback
+        newErrors.email = "Enter a valid email";
+      } else {
+        // Valid email
+        delete newErrors.email;
+      }
+    } else if (field === "password" || field === "confirmPassword") {
+      const passwordSchema = z.string()
+        .min(8, "Password must be at least 8 characters long")
+        .regex(/[A-Z]/, "Password must include at least one uppercase letter")
+        .regex(/[0-9]/, "Password must include at least one number")
+        .regex(/[!@#$%^&*(),.?\":{}|<>]/, "Password must include at least one symbol");
+
       if (!passwordSchema.safeParse(updatedFormData.password).success) {
         newErrors.password = "Password must be at least 8 chars, include uppercase, number, and symbol";
       } else {
-      delete newErrors.password; 
-    }
-    // ===== Re-validate confirmPassword whenever password changes =====
-    if (mode === "signup" && updatedFormData.confirmPassword !== updatedFormData.password) {  // <-- CHANGED
-    newErrors.confirmPassword = "Passwords do not match"; // <-- CHANGED
-    } else {
-      delete newErrors.confirmPassword;
-    }
-   
-  } else if (field === "username") {
-    const usernameSchema = z.string().min(3, "Username must be at least 3 characters long");
-    const usernameResult = usernameSchema.safeParse(value);
-    if (!usernameResult.success) {
-      newErrors.username = usernameResult.error.errors[0].message;
-    } else  {
-      delete newErrors.username; 
-    }
-  } else if (field === "confirmPassword") {
-  // ===== confirmPassword validation =====
-    if (updatedFormData.password !== value) {
-      newErrors.confirmPassword = "Passwords do not match";
-    } else {
-      delete newErrors.confirmPassword;
-    }
-  }
+        delete newErrors.password;
+      }
 
+      if (mode === "signup" && updatedFormData.confirmPassword !== updatedFormData.password) {
+        newErrors.confirmPassword = "Passwords do not match";
+      } else {
+        delete newErrors.confirmPassword;
+      }
+    } else if (field === "username") {
+      const usernameSchema = z.string().min(3, "Username must be at least 3 characters long");
+      const usernameResult = usernameSchema.safeParse(value);
+      if (!usernameResult.success) newErrors.username = usernameResult.error.errors[0].message;
+      else delete newErrors.username;
+    } else if (field === "confirmPassword") {
+      if (updatedFormData.password !== value) newErrors.confirmPassword = "Passwords do not match";
+      else delete newErrors.confirmPassword;
+    }
 
-  setErrors(newErrors);
+    setErrors(newErrors);
+  };
 
-};
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const activeSchema = mode === "signup" ? signupSchema : signinSchema;
     const result = activeSchema.safeParse(formData);
 
-
     if (result.success) {
+      if (mode === "signin") navigate("/dashboard");
       alert(`${mode === "signup" ? "Account created" : "Signed in"} successfully!`);
-      localStorage.setItem("isSignedIn", "true");
-      window.location.reload(); // refresh to show dashboard
     } else {
       const fieldErrors = {};
       result.error.errors.forEach((err) => {
@@ -138,80 +122,172 @@ function App() {
     }
   };
 
-
   const [isFormValid, setIsFormValid] = useState(false);
-    useEffect(() => {
-  if (mode === "signup") {  
-    setIsFormValid(
-      Object.keys(errors).length === 0 &&  
-      formData.username &&  
-      formData.email &&
-      formData.password &&
-      formData.confirmPassword
-    );
-  } else {
-    setIsFormValid(
-      Object.keys(errors).length === 0 &&
-      formData.email &&
-      formData.password
-    );
-  }
-}, [formData, errors, mode]); 
+  useEffect(() => {
+    if (mode === "signup") {
+      setIsFormValid(
+        Object.keys(errors).length === 0 &&
+        formData.username &&
+        formData.email &&
+        formData.password &&
+        formData.confirmPassword
+      );
+    } else {
+      setIsFormValid(
+        Object.keys(errors).length === 0 &&
+        formData.email &&
+        formData.password
+      );
+    }
+  }, [formData, errors, mode]);
 
- return (
-  <div className="flex items-center justify-center min-h-screen">
-    {/* ==========================
-         AUTH SCREENS (Sign In / Sign Up)
-    =========================== */}
-    {!localStorage.getItem("isSignedIn") ? (
-      <div className="bg-white mt-6 p-8 rounded-xl shadow-xl w-full max-w-md text-center">
-        {/* Your existing Sign In / Sign Up JSX goes here (keep exactly as-is) */}
-        {/* ... */}
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+
+      {/* ✅ Khronicle logo and title OUTSIDE card */}
+      <div className="flex items-center justify-center mb-6">
+        <img src={logo} alt="Khronicle Logo" className="w-10 h-10 mr-2" />
+        <h1 className="text-3xl font-bold text-gray-900">Khronicle</h1>
+      </div>
+
+      {/* Auth card */}
+      <div className="bg-white mt-2 p-8 rounded-xl shadow-xl w-full max-w-md text-center">
+
+        <div className="bg-white w-full max-w-md text-center">
+          <h1 className="text-left text-xl font-bold text-gray-900">Welcome to Khronicle</h1>
+          <p className="text-left text-sm text-gray-600 mt-2">
+            Start managing your projects log, and collaborate with your team
+          </p>
+
+          {/* Tabs */}
+          <div className="flex bg-gray-200 rounded-sm overflow-hidden mt-6">
+            <button
+              className={`flex-1 py-2 font-semibold cursor-pointer ${
+                mode === "signup"
+                  ? "bg-white text-gray-900 rounded-sm shadow-sm"
+                  : "text-gray-600"
+              }`}
+              onClick={() => handleModeSwitch("signup")}
+            >
+              Sign Up
+            </button>
+            <button
+              className={`flex-1 py-2 font-semibold cursor-pointer ${
+                mode === "signin"
+                  ? "bg-white text-gray-900 rounded-sm shadow-sm"
+                  : "text-gray-600"
+              }`}
+              onClick={() => handleModeSwitch("signin")}
+            >
+              Sign In
+            </button>
+          </div>
+
+          {/* Form */}
+          <form className="text-left mt-6 space-y-4" onSubmit={handleSubmit}>
+            {mode === "signup" && (
+              <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={(e) => handleChange("username", e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                {errors.username && (
+                  <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+                )}
+              </div>
+            )}
+
+            <div className="w-full mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
+            </div>
+
+            <div className="w-full mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              )}
+            </div>
+
+            {mode === "signup" && (
+              <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Re-enter your password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                )}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={!isFormValid}
+              className={`w-full py-2 font-semibold rounded-md transition-colors ${
+                isFormValid
+                  ? "bg-black text-white hover:bg-gray-800"
+                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
+              }`}
+            >
+              {mode === "signup" ? "Sign Up" : "Sign In"}
+            </button>
+          </form>
+        </div>
+
         <div className="pt-5">
           <h2 className="text-xs text-gray-900 mb-1">Or Sign up with</h2>
         </div>
 
         <div className="flex items-center justify-center space-x-6 mt-6">
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faGoogle} className="w-6 h-6 text-black" />
+            <FontAwesomeIcon icon={faGoogle} className="w-6 h-6 text-black hover:text-amber-500 transition-colors" />
           </button>
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faGithub} className="w-6 h-6 text-black" />
+            <FontAwesomeIcon icon={faGithub} className="w-6 h-6 text-black hover:text-amber-500 transition-colors" />
           </button>
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faTwitter} className="w-6 h-6 text-black" />
+            <FontAwesomeIcon icon={faTwitter} className="w-6 h-6 text-black hover:text-amber-500 transition-colors" />
           </button>
         </div>
-      </div>
-    ) : (
-      /* ==========================
-         DASHBOARD / PROJECT PANEL
-      =========================== */
-      <div className="w-full h-screen bg-gray-50">
-        {!selectedProject ? (
-          <Dashboard
-            onOpenSettings={() => setShowSettings(true)}
-            onProjectSelect={setSelectedProject}
-          />
-        ) : (
-          <SingleProjectPanel
-            project={selectedProject}
-            isOpen={true}
-            onClose={() => setSelectedProject(null)}
-            onOpenSettings={() => setShowSettings(true)}
-          />
-        )}
 
-        {/* Shared Settings Modal */}
-        <SettingsModal
-          open={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      </div>
-    )}
-  </div>
-);
+        
 
+      </div>
+    </div>
+  )
 }
 
 export default App

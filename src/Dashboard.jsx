@@ -123,7 +123,7 @@ export default function Dashboard({ onOpenSettings }) {
         <div className="p-4">
           <button
             onClick={() => setShowNewProjectModal(true)}
-            className="w-full flex items-center space-x-2 bg-amber-800 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors"
+            className="w-full flex items-center space-x-2 bg-amber-800 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors cursor-pointer"
           >
             <Plus size={16} />
             <span>New Project</span>
@@ -153,7 +153,7 @@ export default function Dashboard({ onOpenSettings }) {
                 <button
                   key={proj.id}
                   onClick={() => handleOpenProject(proj)}
-                  className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
+                  className="w-full flex items-center space-x-3 px-2 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors cursor-pointer"
                 >
                   <div className="w-4 h-4 bg-gray-300 rounded-sm flex-shrink-0"></div>
                   <span className='truncate block text-left w-full'>{proj.title}</span>
@@ -203,7 +203,7 @@ export default function Dashboard({ onOpenSettings }) {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setShowCommentsSidebar(!showCommentsSidebar)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm"
+                    className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm cursor-pointer"
                   >
                     <MessageSquare size={16} />
                     <span>New Comments</span>
@@ -212,7 +212,7 @@ export default function Dashboard({ onOpenSettings }) {
                   <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                      className="w-8 h-8 bg-purple-500 rounded-full hover:bg-purple-600 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                      className="w-8 h-8 bg-purple-500 rounded-full hover:bg-purple-600 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer"
                     />
                     {showProfileDropdown && (
                       <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -291,7 +291,7 @@ export default function Dashboard({ onOpenSettings }) {
                       />
                     </div>
                     <button
-                      className="flex items-center space-x-2 bg-amber-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors"
+                      className="flex items-center space-x-2 bg-amber-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-800 transition-colors cursor-pointer"
                       onClick={() => setShowNewProjectModal(true)}
                     >
                       <Plus size={16} />
@@ -303,22 +303,26 @@ export default function Dashboard({ onOpenSettings }) {
                 {/* Project Cards (restored layout) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {projects.map((project) => (
-                    <div key={project.id}
-                    onClick={() => {
-                      handleOpenProject(project)
-                    }}
-                    className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div
+                      key={project.id}
+                      onClick={() => handleOpenProject(project)}
+                      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow text-left"
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
-                          <h3 className="font-medium text-gray-900 text-sm">{project.title}</h3>
+                          <div className="w-4 h-4 bg-gray-300 rounded-sm flex-shrink-0"></div>
+                          <h3 className="font-medium text-gray-900 text-sm text-left">
+                            {project.title}
+                          </h3>
                         </div>
-                        <button className="text-gray-400 hover:text-gray-600">
+                        <button className="text-gray-400 hover:text-gray-600 flex-shrink-0">
                           <MoreHorizontal size={16} />
                         </button>
                       </div>
 
-                      <p className="text-gray-600 text-xs mb-4 leading-relaxed">{project.description}</p>
+                      <p className="text-gray-600 text-xs mb-4 leading-relaxed text-left">
+                        {project.description}
+                      </p>
 
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <div className="flex items-center space-x-1">
@@ -339,6 +343,7 @@ export default function Dashboard({ onOpenSettings }) {
                     </div>
                   ))}
                 </div>
+
               </div>
             </div>
           </>
