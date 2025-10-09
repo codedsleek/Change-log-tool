@@ -144,8 +144,8 @@ function App() {
 
       {/*Logo and title */}
       <div className="flex items-center justify-center mb-6">
-        <img src= "public\logo.png" alt="Khronicle Logo" className="w-10 h-10 mr-2" />
-        <h1 className="text-3xl font-bold text-gray-900">Khronicle</h1>
+        <img src= "../public/logo.png" alt="Khronicle Logo" className="w-10 h-10 mr-2" />
+        <h1 className="text-3xl text-amber-800">Khronicle</h1>
       </div>
 
       {/* Auth card */}
