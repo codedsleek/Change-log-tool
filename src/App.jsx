@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faGear, faLifeRing } from "@fortawesome/free-solid-svg-icons";
-import logo from "./assets/logo.png"; 
+import logo from "./assets/Logo.png"; 
 
 // Zod schema for validation
 const signinSchema = z.object({
