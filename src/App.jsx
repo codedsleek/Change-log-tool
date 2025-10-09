@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faGear, faLifeRing } from "@fortawesome/free-solid-svg-icons";
-import logo from "./assets/logo.png"; // ✅ using imported logo like your old code
-
+import logo from "./assets/logo.png"; 
 
 // Zod schema for validation
 const signinSchema = z.object({
@@ -144,7 +143,7 @@ function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
 
-      {/* ✅ Khronicle logo and title OUTSIDE card */}
+      {/*Logo and title */}
       <div className="flex items-center justify-center mb-6">
         <img src={logo} alt="Khronicle Logo" className="w-10 h-10 mr-2" />
         <h1 className="text-3xl font-bold text-gray-900">Khronicle</h1>

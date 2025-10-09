@@ -291,7 +291,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                   </div>
                 </>
               ) : (
-                // ✅ Success View
+                // Success View
                 <div className="flex flex-col items-center justify-center text-center py-10">
                   <div className="text-amber-700 mb-6">
                     <FileText size={64} strokeWidth={1.2} />
