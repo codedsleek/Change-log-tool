@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
 import { faGear, faLifeRing } from "@fortawesome/free-solid-svg-icons";
-import logo from "./assets/Logo.png"; 
+import logo from "./assets/logo.png"; 
 
 // Zod schema for validation
 const signinSchema = z.object({
@@ -272,13 +272,13 @@ function App() {
 
         <div className="flex items-center justify-center space-x-6 mt-6">
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faGoogle} className="w-6 h-6 text-black hover:text-amber-500 transition-colors" />
+            <FontAwesomeIcon icon={faGoogle} className="w-6 h-6 text-black hover:text-amber-800 transition-colors cursor-pointer" />
           </button>
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faGithub} className="w-6 h-6 text-black hover:text-amber-500 transition-colors" />
+            <FontAwesomeIcon icon={faGithub} className="w-6 h-6 text-black hover:text-amber-800 transition-colors cursor-pointer" />
           </button>
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faTwitter} className="w-6 h-6 text-black hover:text-amber-500 transition-colors" />
+            <FontAwesomeIcon icon={faTwitter} className="w-6 h-6 text-black hover:text-amber-800 transition-colors cursor-pointer" />
           </button>
         </div>
 

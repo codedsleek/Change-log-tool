@@ -216,17 +216,6 @@ export default function Dashboard({ onOpenSettings }) {
                     />
                     {showProfileDropdown && (
                       <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                        {/* Header */}
-                        <div className="px-4 py-3 border-b border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <MsgIcon size={16} className="text-gray-400" />
-                              <span className="text-sm text-gray-600">New Comments</span>
-                            </div>
-                            <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
-                          </div>
-                        </div>
-
                         {/* Profile Info */}
                         <div className="px-4 py-3 space-y-3">
                           <div className="flex items-center justify-between">
@@ -256,9 +245,9 @@ export default function Dashboard({ onOpenSettings }) {
 
                         {/* Sign out */}
                         <div className="px-4 py-3 border-t border-gray-200">
-                          <button className="flex items-center space-x-2 text-red-600 hover:text-red-700 text-sm w-full">
-                            <LogOut size={16} />
+                          <button className="flex items-center justify-between text-red-600 hover:text-red-700 text-sm w-full">
                             <span>Signout</span>
+                            <LogOut size={16} />
                           </button>
                         </div>
                       </div>
