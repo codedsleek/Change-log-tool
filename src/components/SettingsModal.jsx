@@ -36,7 +36,7 @@ export default function SettingsModal({ open, onClose }) {
                 />
                 </div>
 
-                {/* Upload overlay icon */}
+                {/* Upload icon */}
                 <label
                 htmlFor="profileUpload"
                 className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full opacity-0 hover:opacity-100 cursor-pointer transition-opacity"
