@@ -4,14 +4,16 @@ import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faGear, faLifeRing } from "@fortawesome/free-solid-svg-icons";
+import { faGear, faLifeRing, faEye, faEyeSlash, faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import logo from './assets/logo.png';
+import { motion, AnimatePresence } from "framer-motion";
 
 // Zod schema for validation
 const signinSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
+
 
 const signupSchema = z
   .object({
@@ -39,6 +41,10 @@ function App() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const navigate = useNavigate();
 
   const handleModeSwitch = (newMode) => {
@@ -109,15 +115,17 @@ function App() {
     const result = activeSchema.safeParse(formData);
 
     if (result.success) {
-      if (mode === "signin") navigate("/dashboard");
-      alert(`${mode === "signup" ? "Account created" : "Signed in"} successfully!`);
+      if (mode === "signup") {
+        setIsSuccess(true); // show success card
+      } else {
+        navigate("/dashboard");
+      }
     } else {
       const fieldErrors = {};
       result.error.errors.forEach((err) => {
         fieldErrors[err.path[0]] = err.message;
       });
       setErrors(fieldErrors);
-      alert("Please fix errors before submitting.");
     }
   };
 
@@ -141,152 +149,253 @@ function App() {
   }, [formData, errors, mode]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+  <div className="bg- flex flex-col items-center justify-center min-h-screen ">
+    {/*Logo and title */}
+    <div className="flex items-center justify-center mb-6">
+      <img src={logo} alt="Khronicle Logo" className="w-10 h-10 mr-2" />
+      <h1 className="text-3xl text-amber-800">Khronicle</h1>
+    </div>
 
-      {/*Logo and title */}
-      <div className="flex items-center justify-center mb-6">
-        <img src= {logo} alt="Khronicle Logo" className="w-10 h-10 mr-2" />
-        <h1 className="text-3xl text-amber-800">Khronicle</h1>
-      </div>
+    {/* Auth card */}
+    <div className="bg-white mt-2 p-8 rounded-xl shadow-xl w-full max-w-md text-center">
+      {!isSuccess ? (
+        <>
+          <div className="bg-white w-full max-w-md text-center">
+            <h1 className="text-left text-xl font-semibold text-gray-900">Welcome to Khronicle</h1>
+            <p className="text-left text-xs text-gray-600 mt-2 pb-6">
+              Start managing your projects log, and collaborate with your team
+            </p>
 
-      {/* Auth card */}
-      <div className="bg-white mt-2 p-8 rounded-xl shadow-xl w-full max-w-md text-center">
+            {/* Tabs */}
+            <div className="flex bg-gray-200 rounded-sm overflow-hidden mt-6">
+              <button
+                className={`flex-1 py-2 font-semibold cursor-pointer ${
+                  mode === "signup"
+                    ? "bg-white text-gray-900 rounded-sm shadow-sm"
+                    : "text-gray-600"
+                }`}
+                onClick={() => handleModeSwitch("signup")}
+              >
+                Sign Up
+              </button>
+              <button
+                className={`flex-1 py-2 font-semibold cursor-pointer ${
+                  mode === "signin"
+                    ? "bg-white text-gray-900 rounded-sm shadow-sm"
+                    : "text-gray-600"
+                }`}
+                onClick={() => handleModeSwitch("signin")}
+              >
+                Sign In
+              </button>
+            </div>
 
-        <div className="bg-white w-full max-w-md text-center">
-          <h1 className="text-left text-xl font-bold text-gray-900">Welcome to Khronicle</h1>
-          <p className="text-left text-sm text-gray-600 mt-2">
-            Start managing your projects log, and collaborate with your team
-          </p>
+            {/* Form */}
+            <form className="text-left mt-6 space-y-4" onSubmit={handleSubmit}>
+              {mode === "signup" && (
+                <div className="w-full mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    value={formData.username}
+                    onChange={(e) => handleChange("username", e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-800"
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+                  )}
+                </div>
+              )}
 
-          {/* Tabs */}
-          <div className="flex bg-gray-200 rounded-sm overflow-hidden mt-6">
-            <button
-              className={`flex-1 py-2 font-semibold cursor-pointer ${
-                mode === "signup"
-                  ? "bg-white text-gray-900 rounded-sm shadow-sm"
-                  : "text-gray-600"
-              }`}
-              onClick={() => handleModeSwitch("signup")}
-            >
-              Sign Up
-            </button>
-            <button
-              className={`flex-1 py-2 font-semibold cursor-pointer ${
-                mode === "signin"
-                  ? "bg-white text-gray-900 rounded-sm shadow-sm"
-                  : "text-gray-600"
-              }`}
-              onClick={() => handleModeSwitch("signin")}
-            >
-              Sign In
-            </button>
+              <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-800"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="w-full mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={(e) => handleChange("password", e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-800"
+                  />
+                  <FontAwesomeIcon
+                    icon={showPassword ? faEyeSlash : faEye}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                  />
+                </div>
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                )}
+
+                {/* Forgot Password */}
+                {mode === "signin" && (
+                  <div className="text-right mt-1">
+                    <button
+                      type="button"
+                      className="text-xs text-amber-800 hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {mode === "signup" && (
+                <div className="w-full mb-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Re-enter your password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-800"
+                    />
+                    <FontAwesomeIcon
+                      icon={showConfirmPassword ? faEyeSlash : faEye}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                    />
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                  )}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className={`w-full py-2 font-semibold rounded-md transition-colors cursor-pointer ${
+                  isFormValid
+                    ? "bg-amber-800 text-white hover:bg-amber-900"
+                    : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                }`}
+              >
+                {mode === "signup" ? "Sign Up" : "Sign In"}
+              </button>
+            </form>
           </div>
 
-          {/* Form */}
-          <form className="text-left mt-6 space-y-4" onSubmit={handleSubmit}>
-            {mode === "signup" && (
-              <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your username"
-                  value={formData.username}
-                  onChange={(e) => handleChange("username", e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {errors.username && (
-                  <p className="text-red-500 text-xs mt-1">{errors.username}</p>
-                )}
-              </div>
-            )}
+          <div className="flex items-center my-6">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="mx-3 text-xs text-gray-500">Or sign up with</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
 
-            <div className="w-full mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          <div className="flex gap-3 mt-6">
+            <button
+              type="button"
+              className="relative overflow-hidden group flex items-center justify-center w-full py-3 rounded-md bg-gray-200 transition-all duration-500 cursor-pointer"
+            >
+              <FontAwesomeIcon
+                icon={faGoogle}
+                className="relative z-10 w-5 h-5 text-black group-hover:text-white transition-colors duration-500"
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-              )}
-            </div>
-
-            <div className="w-full mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) => handleChange("password", e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
-            </div>
-
-            {mode === "signup" && (
-              <div className="w-full mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="Re-enter your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
-                )}
-              </div>
-            )}
+              <span
+                className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-t from-amber-800/80 to-amber-800
+                          group-hover:h-full group-hover:opacity-100 opacity-0
+                          transition-all duration-500 ease-out"
+              ></span>
+            </button>
 
             <button
-              type="submit"
-              disabled={!isFormValid}
-              className={`w-full py-2 font-semibold rounded-md transition-colors ${
-                isFormValid
-                  ? "bg-black text-white hover:bg-gray-800"
-                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
-              }`}
+              type="button"
+              className="relative overflow-hidden group flex items-center justify-center w-full py-3 rounded-md bg-gray-200 transition-all duration-500 cursor-pointer"
             >
-              {mode === "signup" ? "Sign Up" : "Sign In"}
+              <FontAwesomeIcon 
+                icon={faTwitter}
+                className="relative z-10 w-5 h-5 text-black group-hover:text-white transition-colors duration-500"
+              />
+              <span
+                className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-t from-amber-800/80 to-amber-800
+                          group-hover:h-full group-hover:opacity-100 opacity-0
+                          transition-all duration-500 ease-out"
+              ></span>
             </button>
-          </form>
-        </div>
 
-        <div className="pt-5">
-          <h2 className="text-xs text-gray-900 mb-1">Or Sign up with</h2>
-        </div>
+            <button
+              type="button"
+              className="relative overflow-hidden group flex items-center justify-center w-full py-3 rounded-md bg-gray-200 transition-all duration-500 cursor-pointer"
+            >
+              <FontAwesomeIcon
+                icon={faGithub}
+                className="relative z-10 w-5 h-5 text-black group-hover:text-white transition-colors duration-500"
+              />
+              <span
+                className="absolute bottom-0 left-0 w-full h-0 bg-gradient-to-t from-amber-800/80 to-amber-800
+                          group-hover:h-full group-hover:opacity-100 opacity-0
+                          transition-all duration-500 ease-out"
+              ></span>
+            </button>
+          </div>
+        </>
+      ) : (
+        // Success Card 
+        <AnimatePresence>
+          {isSuccess && (
+            <motion.div
+              key="success-card"
+              initial={{ opacity: 0, scale: 0.8, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="flex flex-col items-center justify-center py-12"
+            >
+              <FontAwesomeIcon
+                icon={faFolderOpen}
+                className="text-amber-800 mb-6"
+                style={{ fontSize: "5rem" }}
+              />
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Account Created Successfully
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">Welcome to Khronicle</p>
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="px-6 py-2 bg-amber-800 text-white rounded-md hover:bg-amber-900 transition-colors duration-300 cursor-pointer"
+              >
+                Proceed to Dashboard
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="flex items-center justify-center space-x-6 mt-6">
-          <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faGoogle} className="w-6 h-6 text-black hover:text-amber-800 transition-colors cursor-pointer" />
-          </button>
-          <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faGithub} className="w-6 h-6 text-black hover:text-amber-800 transition-colors cursor-pointer" />
-          </button>
-          <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <FontAwesomeIcon icon={faTwitter} className="w-6 h-6 text-black hover:text-amber-800 transition-colors cursor-pointer" />
-          </button>
-        </div>
 
-        
-
-      </div>
+      )}
     </div>
-  )
+
+    <p className="mt-6 text-xs text-gray-500 text-center max-w-xs mx-auto">
+      By proceeding to use <span className="font-semibold text-amber-800">Khronicle</span>, you agree to our <br />
+      <a href="#" className="underline hover:text-amber-800 transition-colors">Terms of Service</a> and{" "}
+      <a href="#" className="underline hover:text-amber-800 transition-colors">Privacy Policy</a>.
+    </p>
+  </div>
+);
 }
+
 
 export default App

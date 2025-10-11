@@ -7,6 +7,7 @@ import {
   Clock,
   MessageSquare,
   MoreHorizontal,
+  Dot,
 } from "lucide-react";
 
 export default function SingleProjectPanel({ project, isOpen, onClose }) {
@@ -19,21 +20,21 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
     1: [
       {
         id: 1,
-        author: "Samuel Saidu",
-        date: "18/09/2025",
-        text: "Looks great! The mobile version is much better now.",
+        author: "Jamie Smith",
+        date: "20/09/2025",
+        text: "Great job, Jamie! I like the new notification settings.",
       },
       {
         id: 2,
-        author: "Samuel Saidu",
-        date: "18/09/2025",
-        text: "Looks great! The mobile version is much better now.",
+        author: "Alex Davies",
+        date: "20/09/2025",
+        text: "Thanks for implementing the user suggestions!",
       },
       {
         id: 3,
-        author: "Samuel Saidu",
-        date: "18/09/2025",
-        text: "Looks great! The mobile version is much better now.",
+        author: "Rose Carter",
+        date: "20/09/2025",
+        text: "The onboarding process is much easier now.",
       },
     ],
     2: [
@@ -99,29 +100,36 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
 
     setNewCommentByLog((prev) => ({ ...prev, [logId]: "" }));
   };
+  useEffect(() => {
+    if (showNewLogPopup) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showNewLogPopup]);
+
 
   const logs = [
     {
       id: 1,
-      title: "Homepage Layout Complete",
-      subtype: "Design Review",
+      title: "Feature Enhancement",
+      subtype: "User Feedback Implementation",
       bullets: [
-        "Implemented responsive grid layout for hero section",
-        "Refined typography for mobile responsiveness",
-        "Tested layout in Safari and Edge browsers",
+        "Integrated user suggestions for bill tracking",
+        "Improved notification settings for reminders",
+        "Streamlined onboarding process for new users",
       ],
-      date: "18/09/2025",
+      date: "20/09/2025",
       daysAgo: "2 days ago",
     },
     {
       id: 2,
-      title: "Dashboard Styling Update",
-      subtype: "UI Review",
+      title: "Security Upgrade",
+      subtype: "Data Protection Review",
       bullets: [
-        "Updated dashboard sidebar icons",
-        "Improved mobile spacing consistency",
+        "Enhanced encryption for user data",
+        "Implemented two-factor authentication",
+        "Conducted a thorough security audit",
       ],
-      date: "18/09/2025",
+      date: "21/09/2025",
       daysAgo: "2 days ago",
     },
   ];
@@ -129,7 +137,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
   return (
     <div
       ref={panelRef}
-      className="flex-1 flex flex-col bg-white shadow-xl border-l border-gray-200 overflow-y-auto"
+      className="flex-1 flex flex-col bg-white shadow-xl border-l border-gray-200"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3 border-b bg-white">
@@ -157,12 +165,12 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
       </div>
 
       {/* Body */}
-      <div className="text-left p-6 overflow-y-auto">
-        <div className=" mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="mb-6">
+          <h1 className="text-left text-xl font-semibold text-gray-900">
             {project?.title ?? "Wren Finance App"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1 max-w-3xl ">
+          <p className="text-left text-sm text-gray-500 mt-1 max-w-3xl ">
             {project?.description ??
               "Wren is a personal finance app that helps you track bills, stay ahead of due dates, and avoid late fees."}
           </p>
@@ -361,9 +369,11 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                     <span>{log.date}</span>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center text-gray-400">
                       <Clock size={14} />
+                      <Dot size={12} />
+                      
                       <span>{log.daysAgo}</span>
                     </div>
 
@@ -371,7 +381,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                       onClick={() =>
                         setOpenLogId(openLogId === log.id ? null : log.id)
                       }
-                      className="inline-flex items-center gap-2 border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 transition cursor-pointer"
+                      className="inline-flex items-center gap-2 border border-gray-200 rounded-sm px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 transition cursor-pointer"
                     >
                       <MessageSquare size={12} />
                       <span>{comments.length} Comments</span>
@@ -381,8 +391,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
 
                 {openLogId === log.id && (
                   <div className="mt-4 border-t pt-4">
-                    {/* Scrollable comment list */}
-                    <div className="space-y-3 overflow-y-auto pr-2 max-h-60">
+                    <div className="space-y-3 pr-2">
                       {comments.map((c) => (
                         <div key={c.id} className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-700">
@@ -393,13 +402,15 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                               .join("")}
                           </div>
                           <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-semibold text-gray-700">
+                            <div className="flex items-center ">
+                              <p className="text-sm font-semibold text-black">
                                 {c.author}
                               </p>
+                              <Dot size={12} className='text-gray-400 relative top-[1.5px]'/>
+                              
                               <p className="text-xs text-gray-400">{c.date}</p>
                             </div>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-left text-xs text-gray-600 mt-1">
                               {c.text}
                             </p>
                           </div>
@@ -420,18 +431,18 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                         }
                         placeholder="Write a comment..."
                         rows={3}
-                        className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                        className="w-full bg-gray-100 text-gray-500 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
                       />
                       <div className="mt-3 flex items-center gap-3">
                         <button
                           onClick={() => handleAddComment(log.id)}
-                          className="bg-amber-800 text-white px-4 py-2 rounded-md text-sm hover:bg-amber-900 transition"
+                          className="bg-amber-800 text-white px-4 py-2 rounded-md text-sm hover:bg-amber-900 transition cursor-pointer"
                         >
                           Add comment
                         </button>
                         <button
                           onClick={() => setOpenLogId(null)}
-                          className="border border-gray-300 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition"
+                          className="border border-gray-300 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition cursor-pointer"
                         >
                           Close
                         </button>

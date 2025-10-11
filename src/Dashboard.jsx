@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare,
-  MoreHorizontal, Share, LogOut, X, ArrowRight, MessageSquare as MsgIcon
+  MoreHorizontal, Share, NotepadText, CornerDownLeft, ChevronUp, ChevronDown , Square,
+  LogOut, X, ArrowRight, Folder, Dot, MessageSquare as MsgIcon
 } from 'lucide-react';
 import CreateProjectModal from "./components/CreateProjectModal";
 import SingleProjectPanel from "./components/SingleProjectPanel.jsx";
@@ -64,10 +65,25 @@ export default function Dashboard({ onOpenSettings }) {
     };
   }, []);
 
+  useEffect(() => {
+    const hasOpenModal = showNewProjectModal || showSearchModal || showSettingsModal || showSupportModal || showCommentsSidebar;
+
+    if (hasOpenModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showNewProjectModal, showSearchModal, showSettingsModal, showSupportModal, showCommentsSidebar]);
+
   const [projects] = useState([
     { id: 1, title: 'Website Redesign', description: 'Complete overhaul of company website with new colors and assets', daysAgo: 2, people: 3, comments: 2 },
-    { id: 2, title: 'Wren bill managing mobile app', description: 'Wren is a personal finance app that helps you track bills, stay ahead of due dates, get clear summaries, and avoid costly late fees.', daysAgo: 2, people: 3, comments: 5 },
-    { id: 3, title: 'Website Redesign', description: 'Complete overhaul of company website with new colors and assets', daysAgo: 2, people: 3, comments: 2 }
+    { id: 2, title: 'Wren bill managing mobile app', description: 'Enhancements to user interface and new features added for better user experience.', daysAgo: 2, people: 4, comments: 3 },
+    { id: 3, title: 'SEO Optimization', description: 'Improved site visibility through keyword research and content updates', daysAgo: 2, people: 3, comments: 2 }
   ]);
 
   const handleOpenProject = (project) => {
@@ -77,23 +93,42 @@ export default function Dashboard({ onOpenSettings }) {
   };
 
   const [comments] = useState([
-    { id: 1, user: 'Samuel Saidu', timestamp: '09:00 AM', message: 'Looks great! The mobile version is much better now.' },
-    { id: 2, user: 'Samuel Saidu', timestamp: '09:00 AM', message: 'Looks great! The mobile version is much better now.' },
+    {
+      id: 1,
+      user: 'Jane Doe',
+      timestamp: 'Sep 20, 09:45',
+      message: 'The new color palette is fantastic!',
+      project: 'SEO Optimization'
+    },
+    {
+      id: 2,
+      user: 'Rose McIntyre',
+      timestamp: 'Sep 20, 09:25',
+      message: 'What keywords did you use for the SEO optimization project?',
+      project: 'SEO Optimization'
+    },
+    {
+      id: 3,
+      user: 'Will Barns',
+      timestamp: 'Sep 19, 10:15',
+      message: 'The UI enhancements are great.',
+      project: 'Website Redesign'
+    },
   ]);
+
 
   const [searchResults] = useState({
     projects: [
-      { id: 1, name: 'Website Redesign', type: 'project' },
-      { id: 2, name: 'Website Redesign', type: 'project' },
-      { id: 3, name: 'Website Redesign', type: 'project' }
+      { id: 1, name: 'User Testing Phase', type: 'project' },
+      { id: 2, name: 'Launch Preparation', type: 'project' },
     ],
     logs: [
-      { id: 1, name: 'Homepage Layout Complete', type: 'log' },
-      { id: 2, name: 'Homepage Layout Complete', type: 'log' }
+      { id: 1, name: 'Feedback Collection Underway', type: 'log' },
+      { id: 2, name: 'Final QA and Deployment Checklist', type: 'log' }
     ],
     comments: [
-      { id: 1, user: 'Samuel Saidu', date: '10/01/2025', message: 'Looks great! The mobile version is much better now.', type: 'comment' },
-      { id: 2, user: 'Samuel Saidu', date: '10/01/2025', message: 'Looks great! The mobile version is much better now.', type: 'comment' }
+      { id: 1, user: 'Laura Brown', date: 'Sep 20, 09:25', message: 'The adjustments to the UI have made a significant impact. Well done!', type: 'comment' },
+      { id: 2, user: 'Michael Johnson', date: 'Sep 19, 10:15', message: 'I appreciate the new color scheme; it really enhances usability.', type: 'comment' }
     ]
   });
 
@@ -299,7 +334,8 @@ export default function Dashboard({ onOpenSettings }) {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 bg-gray-300 rounded-sm flex-shrink-0"></div>
+                         <Folder size={12} />
+
                           <h3 className="font-medium text-gray-900 text-sm text-left">
                             {project.title}
                           </h3>
@@ -312,23 +348,29 @@ export default function Dashboard({ onOpenSettings }) {
                       <p className="text-gray-600 text-xs mb-4 leading-relaxed text-left">
                         {project.description}
                       </p>
+                      <div className="flex-grow border-t border-gray-200"></div>
 
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center space-x-1">
-                          <Clock size={12} />
-                          <span>{project.daysAgo} days ago</span>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center space-x-1">
+                      <div className="flex mt-1 items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center space-x">
+                            <Clock size={12} />
+                            <Dot size={12} />
+                            <span>{project.daysAgo} days ago</span>
+                          </div>
+
+                          <div className="flex items-center space-x">
                             <Users size={12} />
-                            <span>{project.people}</span>
+                            <Dot size={12} />
+                            <span>{project.people} people</span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <MessageSquare size={12} />
-                            <span>{project.comments}</span>
-                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-1">
+                          <MessageSquare size={12} />
+                          <span>{project.comments}</span>
                         </div>
                       </div>
+
                     </div>
                   ))}
                 </div>
@@ -363,46 +405,74 @@ export default function Dashboard({ onOpenSettings }) {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-40 overflow-y-auto"
           >
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-medium text-gray-900">New Comments</h2>
-                <button onClick={() => setShowCommentsSidebar(false)} className="text-gray-400 hover:text-gray-600">
-                  <X size={20} />
-                </button>
-              </div>
+            {/* header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-sm font-medium text-gray-900">Recent Activity</h2>
+              <button onClick={() => setShowCommentsSidebar(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={18} />
+              </button>
             </div>
 
+            {/* list */}
             <div className="p-4 space-y-4">
               {comments.map((comment) => (
-                <div key={comment.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-amber-800 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-medium">
+                <div key={comment.id} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
                       {comment.user.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{comment.user}</p>
-                      <p className="text-xs text-gray-500">{comment.timestamp}</p>
                     </div>
-                    {comment.message ? <p className="text-sm text-gray-600">{comment.message}</p> : <p className="text-sm text-gray-400 italic">No message</p>}
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-gray-400">Website Redesign</span>
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <ArrowRight size={14} />
-                      </button>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center ">
+                        <p className="text-sm font-medium text-gray-900 truncate">{comment.user}</p>
+                          <Dot size={12} className='text-gray-400 relative top-[1.5px]'/>
+
+                        <p className="text-xs text-gray-400">{comment.timestamp}</p>
+                      </div>
+
+                      <p className="text-sm text-gray-600 mt-1">{comment.message}</p>
                     </div>
                   </div>
+
+                  <div className="mt-3">
+                    <div
+                      className="flex flex-col"
+                      style={{ paddingLeft: 'calc(1rem + 2rem + 0.75rem)' }}
+                    >
+                      <div className="border-t border-gray-100 pt-3 flex items-center justify-between group transition-all duration-200">
+                        <button
+                          className="flex items-center space-x-2 text-sm text-gray-500 hover:text-amber-800 transition-colors duration-200 cursor-pointer"
+                        >
+                          <div className="w-5 h-5 bg-gray-50 rounded flex items-center justify-center transition-colors duration-200 group-hover:bg-amber-50">
+                            <Folder size={14} className="transition-colors duration-200 group-hover:text-amber-800" />
+                          </div>
+                          <span className="truncate border-b border-transparent group-hover:border-amber-800 transition-all duration-200">
+                            {comment.project}
+                          </span>
+                        </button>
+
+                        <button
+                          className="text-gray-400 hover:text-amber-800 transform transition-all duration-200 group-hover:translate-x-1"
+                        >
+                          <ArrowRight size={16} className="transition-colors duration-200 group-hover:text-amber-800" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               ))}
 
-              <div className="text-center py-4">
-                <p className="text-sm text-gray-500">Keep up the work</p>
+              {/* footer action */}
+              <div className="text-center mt-2">
+                <button className="text-sm text-amber-700 hover:underline cursor-pointer">Mark all as read</button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+
 
       {/* New Project Modal */}
       {showNewProjectModal && <CreateProjectModal onClose={() => setShowNewProjectModal(false)} />}
@@ -428,17 +498,16 @@ export default function Dashboard({ onOpenSettings }) {
             <div className="overflow-y-auto max-h-[60vh]">
               {/* Projects */}
               <div className="p-6">
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Projects</h3>
-                <div className="space-y-2">
+                <h3 className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Projects</h3>
+                <div className="">
                   {searchResults.projects.map((project) => (
-                    <div key={project.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
+                    <div key={project.id} className="flex items-center justify-between p-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                          <Home size={16} className="text-gray-500" />
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">{project.name}</span>
+                        <Folder size={16} className="text-gray-500" />
+                        <span className="text-sm text-gray-900">{project.name}</span>
                       </div>
-                      <ArrowRight size={16} className="text-gray-400" />
+                      <MoreHorizontal size={16} className='hover:text-amber-800 cursor-pointer' />
+
                     </div>
                   ))}
                 </div>
@@ -447,15 +516,13 @@ export default function Dashboard({ onOpenSettings }) {
 
               {/* Logs */}
               <div className="p-6 border-t border-gray-200">
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Logs</h3>
+                <h3 className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Logs</h3>
                 <div className="space-y-2">
                   {searchResults.logs.map((log) => (
                     <div key={log.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                          <Clock size={16} className="text-gray-500" />
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">{log.name}</span>
+                        <NotepadText size={16} className="text-gray-500" />
+                        <span className="text-sm  text-gray-900">{log.name}</span>
                       </div>
                       <ArrowRight size={16} className="text-gray-400" />
                     </div>
@@ -465,7 +532,7 @@ export default function Dashboard({ onOpenSettings }) {
 
               {/* Comments */}
               <div className="p-6 border-t border-gray-200">
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Comments</h3>
+                <h3 className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">Comments</h3>
                 <div className="space-y-2">
                   {searchResults.comments.map((comment) => (
                     <div key={comment.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
@@ -474,14 +541,43 @@ export default function Dashboard({ onOpenSettings }) {
                           <span className="text-white text-xs font-medium">{comment.user[0]}</span>
                         </div>
                         <div>
-                          <p className="text-sm text-left font-medium text-gray-900">{comment.user}</p>
-                          <p className="text-xs text-left text-gray-400">{comment.date}</p>
+                          <div className="flex items-center space-x-1">
+                            <p className="text-sm font-medium text-gray-900">{comment.user}</p>
+                            <Dot size={12} className="text-gray-400 relative top-[1px]" />
+                            <p className="text-xs text-gray-400">{comment.date}</p>
+                          </div>
                           <p className="text-sm text-gray-600 truncate">{comment.message}</p>
                         </div>
                       </div>
                       <ArrowRight size={16} className="text-gray-400" />
                     </div>
                   ))}
+                </div>
+              </div>
+              {/* Footer */}
+              <div className="border-t border-gray-200 px-6 py-3 flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center space-x-6">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
+                      <span className="border border-gray-300 rounded px-1.5 py-0.5 text-gray-600 text-[10px]">
+                        <ChevronUp size={12} />
+                      </span>
+                      <span className="border border-gray-300 rounded px-1.5 py-0.5 text-gray-600 text-[10px]">
+                        <ChevronDown size={12} />
+                      </span>
+                    </div>
+                    <span>Navigate</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="border border-gray-300 rounded px-2 py-0.5 text-gray-600 text-[10px]">                        
+                      <CornerDownLeft size={12} />
+                    </span>
+                    <span>Open</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="border border-gray-300 rounded px-2 py-0.5 text-gray-600 text-[10px]">ESC</span>
+                  <span>Close</span>
                 </div>
               </div>
             </div>
