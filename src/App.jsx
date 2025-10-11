@@ -253,7 +253,7 @@ function App() {
                   <div className="text-right mt-1">
                     <button
                       type="button"
-                      className="text-xs text-amber-800 hover:underline"
+                      className="text-xs text-amber-800 hover:underline cursor-pointer"
                     >
                       Forgot password?
                     </button>
