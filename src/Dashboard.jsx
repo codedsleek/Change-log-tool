@@ -145,7 +145,7 @@ export default function Dashboard({ onOpenSettings }) {
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
       {/* Left Sidebar */}
-      <div className="w-64 h-full shrink-0 flex flex-col border-r border-gray-200">
+      <div className="w-64 h-full shrink-0 bg-stone-50 flex flex-col border-r border-gray-200">
         <div className="p-4">
           <div className="flex items-center space-x-2">
             <div className="w-6 h-6 bg-amber-800 rounded-sm flex items-center justify-center">
@@ -172,7 +172,7 @@ export default function Dashboard({ onOpenSettings }) {
                 key={index}
                 onClick={item.onClick}
                 className={`w-full flex items-center space-x-3 px-2 py-2 text-sm rounded-md transition-colors ${
-                  item.active ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  item.active ? 'bg-gray-100 text-amber-900 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
                 <item.icon size={16} />

@@ -137,7 +137,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
   return (
     <div
       ref={panelRef}
-      className="flex-1 flex flex-col bg-white shadow-xl border-l border-gray-200"
+      className="flex-1 flex flex-col bg-white border-l border-gray-200"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3 border-b bg-white">

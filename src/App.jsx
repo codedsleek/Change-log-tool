@@ -149,7 +149,7 @@ function App() {
   }, [formData, errors, mode]);
 
   return (
-  <div className="bg- flex flex-col items-center justify-center min-h-screen ">
+  <div className="flex flex-col items-center justify-center min-h-screen ">
     {/*Logo and title */}
     <div className="flex items-center justify-center mb-6">
       <img src={logo} alt="Khronicle Logo" className="w-10 h-10 mr-2" />
@@ -162,14 +162,15 @@ function App() {
         <>
           <div className="bg-white w-full max-w-md text-center">
             <h1 className="text-left text-xl font-semibold text-gray-900">Welcome to Khronicle</h1>
-            <p className="text-left text-xs text-gray-600 mt-2 pb-6">
+            <p className="text-left text-m text-gray-400 mt-2 pb-6">
               Start managing your projects log, and collaborate with your team
             </p>
+      
 
             {/* Tabs */}
-            <div className="flex bg-gray-200 rounded-sm overflow-hidden mt-6">
+            <div className="flex bg-gray-50 p-1 rounded-sm overflow-hidden mt-2">
               <button
-                className={`flex-1 py-2 font-semibold cursor-pointer ${
+                className={`flex-1 py-2 font-regular cursor-pointer ${
                   mode === "signup"
                     ? "bg-white text-gray-900 rounded-sm shadow-sm"
                     : "text-gray-600"
@@ -179,7 +180,7 @@ function App() {
                 Sign Up
               </button>
               <button
-                className={`flex-1 py-2 font-semibold cursor-pointer ${
+                className={`flex-1 py-2 font-regular cursor-pointer ${
                   mode === "signin"
                     ? "bg-white text-gray-900 rounded-sm shadow-sm"
                     : "text-gray-600"
@@ -191,7 +192,7 @@ function App() {
             </div>
 
             {/* Form */}
-            <form className="text-left mt-6 space-y-4" onSubmit={handleSubmit}>
+            <form className="text-left mt-2 space-y-4" onSubmit={handleSubmit}>
               {mode === "signup" && (
                 <div className="w-full mb-4">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
