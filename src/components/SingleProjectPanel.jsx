@@ -340,7 +340,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
             return (
               <article
                 key={log.id}
-                className="border border-gray-200 rounded-lg p-5 bg-white shadow-sm "
+                className="border border-gray-200 rounded-lg p-5 bg-white"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
