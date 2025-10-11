@@ -163,7 +163,7 @@ function App() {
           <div className="bg-white w-full max-w-md text-center">
             <h1 className="text-left text-xl font-semibold text-gray-900">Welcome to Khronicle</h1>
             <p className="text-left text-m text-gray-400 mt-2 pb-6">
-              Start managing your projects log, and collaborate with your team
+              Start managing your projects log, and collaborate with your team.
             </p>
       
 
