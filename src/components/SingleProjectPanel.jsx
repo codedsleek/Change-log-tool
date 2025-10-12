@@ -1,20 +1,28 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
-  Users,
-  Share2,
-  FileText,
-  Clock,
-  MessageSquare,
-  MoreHorizontal,
-  Dot,
+  ArrowLeft, Users, Share2, FileText,
+  Clock, MessageSquare, MoreHorizontal,
+  Dot, PencilLine, Link,
 } from "lucide-react";
+
+function useOutsideClick(ref, handler) {
+  useEffect(() => {
+    const listener = (e) => {
+      if (!ref.current || ref.current.contains(e.target)) return;
+      handler(e);
+    };
+
+    document.addEventListener("mousedown", listener);
+    return () => document.removeEventListener("mousedown", listener);
+  }, [ref, handler]);
+}
 
 export default function SingleProjectPanel({ project, isOpen, onClose }) {
   const panelRef = useRef(null);
   const [showNewLogPopup, setShowNewLogPopup] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [openLogId, setOpenLogId] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [commentsByLog, setCommentsByLog] = useState({
     1: [
@@ -69,6 +77,31 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
     });
   };
 
+  const exportRef = useRef(null);
+  const menuRefs = useRef({});
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (showSettings && exportRef.current && !exportRef.current.contains(e.target)) {
+        setShowSettings(false);
+      }
+
+      if (openMenuId) {
+        const openMenu = menuRefs.current[openMenuId];
+        if (openMenu && !openMenu.contains(e.target)) {
+          setOpenMenuId(null);
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showSettings, openMenuId]);
+
+
+
+
+
   useEffect(() => {
   const handleEsc = (e) => {
     if (e.key !== "Escape") return;
@@ -78,7 +111,6 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
   window.addEventListener("keydown", handleEsc);
   return () => window.removeEventListener("keydown", handleEsc);
   }, [showNewLogPopup, isOpen, onClose]);
-
 
   if (!isOpen) return null;
 
@@ -105,6 +137,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
     else document.body.style.overflow = '';
     return () => { document.body.style.overflow = ''; };
   }, [showNewLogPopup]);
+
 
 
   const logs = [
@@ -156,11 +189,40 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
             <Users size={16} className="mr-1" /> Invite People
           </button>
           <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer">
-            <Share2 size={16} className="mr-1" /> Share Project
+            <link size={16} className="mr-1" /> Share Project
           </button>
-          <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer">
-            <FileText size={16} className="mr-1" /> Export PDF
-          </button>
+          <div ref={exportRef} className="relative">
+            <button
+              onClick={() => setShowSettings((prev) => !prev)}
+              className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer"
+            >
+              <FileText size={16} className="mr-1" /> Export PDF
+            </button>
+
+            {showSettings && (
+              <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-50 animate-slideDownFadeIn origin-top transition-all duration-200">
+                <button
+                  onClick={() => {
+                    setShowSettings(false);
+                    console.log("Exporting WITH comments...");
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors duration-150 rounded-t-lg"
+                >
+                  Export with comments
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowSettings(false);
+                    console.log("Exporting WITHOUT comments...");
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors duration-150 rounded-b-lg"
+                >
+                  Export without comments
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -302,7 +364,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                 // Success View
                 <div className="flex flex-col items-center justify-center text-center py-10">
                   <div className="text-amber-700 mb-6">
-                    <FileText size={64} strokeWidth={1.2} />
+                    <FileCheck size={64} strokeWidth={1.2} />
                   </div>
 
                   <h2 className="text-lg font-semibold text-gray-800 mb-2">
@@ -352,9 +414,45 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                     </p>
                   </div>
 
-                  <button className="text-gray-400 hover:text-gray-600 p-1 rounded">
-                    <MoreHorizontal size={16} />
-                  </button>
+                  <div 
+                  ref={(el) => (menuRefs.current[log.id] = el)}
+                  className="relative"
+                  >
+                    <button
+                      onClick={() => setOpenMenuId(openMenuId === log.id ? null : log.id)}
+                      className="text-gray-400 hover:text-amber-800 p-1 rounded cursor-pointer"
+                    >
+                      <MoreHorizontal size={16} />
+                    </button>
+
+                    {openMenuId === log.id && (
+                      <div
+                        className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50 animate-slideDownFadeIn origin-top transition-all duration-200"
+                      >
+                        <button
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            console.log(`Editing log: ${log.id}`);
+                          }}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors duration-150 rounded-t-lg cursor-pointer"
+                        >
+                          <PencilLine size={14} className="mr-2 text-gray-500" /> Edit log
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            console.log(`Sharing log link: ${log.id}`);
+                          }}
+                          className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors duration-150 rounded-b-lg cursor-pointer"
+                        >
+                          <link size={14} className="mr-2 text-gray-500" /> Share log link
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+
                 </div>
 
                 <ul className="list-disc list-inside text-sm text-left text-gray-600 space-y-1 mb-3">

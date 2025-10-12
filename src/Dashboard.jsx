@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Search, Plus, Home, Settings, HelpCircle, Clock, Users, MessageSquare,
-  MoreHorizontal, Share, NotepadText, CornerDownLeft, ChevronUp, ChevronDown , Square,
+  MoreHorizontal, Share, NotepadText, CornerDownLeft, ChevronUp, FileCheck,
+  ChevronDown , Square, Link,
   LogOut, X, ArrowRight, Folder, Dot, MessageSquare as MsgIcon
 } from 'lucide-react';
 import CreateProjectModal from "./components/CreateProjectModal";
@@ -256,7 +257,7 @@ export default function Dashboard({ onOpenSettings }) {
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-500">Avatar</span>
                             <button className="text-gray-400 hover:text-gray-600">
-                              <Share size={16} />
+                              <Link size={16} />
                             </button>
                           </div>
 
