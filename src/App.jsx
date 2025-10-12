@@ -7,6 +7,7 @@ import { faGoogle, faGithub, faTwitter } from "@fortawesome/free-brands-svg-icon
 import { faGear, faLifeRing, faEye, faEyeSlash, faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import logo from './assets/logo.png';
 import { motion, AnimatePresence } from "framer-motion";
+import { CircleCheckBig } from 'lucide-react';
 
 // Zod schema for validation
 const signinSchema = z.object({
@@ -108,6 +109,29 @@ function App() {
     setErrors(newErrors);
   };
 
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [isForgotStepValid, setIsForgotStepValid] = useState(false);
+
+  
+  const resetForgotPassword = () => {
+    setForgotStep(1);
+    setForgotEmail("");
+    setOtp(["", "", "", "", "", ""]);
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
+    setIsForgotStepValid(false);
+  };
+
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -148,6 +172,20 @@ function App() {
     }
   }, [formData, errors, mode]);
 
+  useEffect(() => {
+    if (forgotStep === 1) {
+      setIsForgotStepValid(/\S+@\S+\.\S+/.test(forgotEmail));
+    } else if (forgotStep === 2) {
+      setIsForgotStepValid(otp.join("").length === 6);
+    } else if (forgotStep === 3) {
+      setIsForgotStepValid(
+        newPassword.length >= 8 &&
+        newPassword === confirmNewPassword
+      );
+    }
+  }, [forgotStep, forgotEmail, otp, newPassword, confirmNewPassword]);
+
+
   return (
   <div className="flex flex-col items-center justify-center min-h-screen ">
     {/*Logo and title */}
@@ -163,7 +201,7 @@ function App() {
           <div className="bg-white w-full max-w-md text-center">
             <h1 className="text-left text-xl font-semibold text-gray-900">Welcome to Khronicle</h1>
             <p className="text-left text-m text-gray-400 mt-2 pb-6">
-              Start managing your projects log, and collaborate with your team
+              Start managing your projects log, and collaborate with your teamS
             </p>
       
 
@@ -255,11 +293,16 @@ function App() {
                     <button
                       type="button"
                       className="text-xs text-amber-800 hover:underline cursor-pointer"
+                      onClick={() => {
+                        setShowForgotPassword(true);
+                        setForgotStep(1);
+                      }}
                     >
                       Forgot password?
                     </button>
                   </div>
                 )}
+
               </div>
 
               {mode === "signup" && (
@@ -394,6 +437,233 @@ function App() {
       <a href="#" className="underline hover:text-amber-800 transition-colors">Terms of Service</a> and{" "}
       <a href="#" className="underline hover:text-amber-800 transition-colors">Privacy Policy</a>.
     </p>
+
+    {/* Forgot Password Modal */}
+    {showForgotPassword && (
+     <div 
+        className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-xs backdrop-opacity z-50 animate-fadeIn"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setShowForgotPassword(false);
+            resetForgotPassword();
+          } 
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 30 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white w-full max-w-md rounded-xl shadow-xl p-6 space-y-5"
+        >
+          {/* Email input */}
+          {forgotStep === 1 && (
+            <>
+              <h2 className="text-left text-lg text-gray-800">Forgot Password</h2>
+              <p className="text-left text-sm text-gray-600">
+                Enter your email address and you will receive an OTP:
+              </p>
+              <input
+                type="email"
+                placeholder="Email address"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+              />
+
+              <div className="flex w-full gap-3 pt-3">
+                <button
+                  disabled={!isForgotStepValid}
+                  onClick={() => setForgotStep(2)}
+                  className={`flex-1 py-2 rounded-md text-sm font-medium transition 
+                    ${isForgotStepValid
+                      ? "bg-amber-800 text-white hover:bg-amber-900 cursor-pointer"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                >
+                  Next
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    resetForgotPassword();
+                  }}
+                  className="flex-1 border border-gray-300 text-gray-600 py-2 rounded-md text-sm hover:bg-gray-100 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+
+
+            </>
+          )}
+
+          {/* OTP Verification */}
+          {forgotStep === 2 && (
+            <>
+              <h2 className="text-left text-lg  text-gray-800">Forgot Password</h2>
+              <p className="text-left text-sm text-gray-600">
+                Enter the OTP sent to your email address.
+              </p>
+
+              <div className="flex gap-2 mt-3">
+                {otp.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    id={`otp-${idx}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, "");
+                      const newOtp = [...otp];
+                      newOtp[idx] = value;
+                      setOtp(newOtp);
+
+                      // Move to next input automatically
+                      if (value && idx < otp.length - 1) {
+                        const nextInput = document.getElementById(`otp-${idx + 1}`);
+                        nextInput?.focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace" && !otp[idx] && idx > 0) {
+                        const prevInput = document.getElementById(`otp-${idx - 1}`);
+                        prevInput?.focus();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pasted = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
+                      if (!pasted) return;
+                      const newOtp = [...otp];
+                      for (let i = 0; i < otp.length; i++) {
+                        newOtp[i] = pasted[i] || "";
+                      }
+                      setOtp(newOtp);
+
+                      // Focus last filled input
+                      const nextIndex = Math.min(pasted.length - 1, otp.length - 1);
+                      const nextInput = document.getElementById(`otp-${nextIndex}`);
+                      nextInput?.focus();
+                    }}
+                    className="w-10 h-10 border border-gray-300 text-center rounded-md text-lg focus:outline-none focus:ring-1 focus:ring-amber-800"
+                  />
+                ))}
+              </div>
+
+
+
+              <div className="flex w-full gap-3 pt-4">
+                <button
+                  disabled={!isForgotStepValid}
+                  onClick={() => setForgotStep(3)}
+                  className={`flex-1 py-2 rounded-md text-sm font-medium transition 
+                    ${isForgotStepValid
+                      ? "bg-amber-800 text-white hover:bg-amber-900 cursor-pointer"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                >
+                  Proceed
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* New Password */}
+          {forgotStep === 3 && (
+            <>
+              <h2 className="text-left text-lg text-gray-800">Create New Password</h2>
+              <p className="text-left text-sm text-gray-600">
+                Your password must be at least 8 characters long.
+              </p>
+
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                />
+                <FontAwesomeIcon
+                  icon={showNewPassword ? faEyeSlash : faEye}
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showConfirmNewPassword ? "text" : "password"}
+                  placeholder="Confirm new password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-amber-800"
+                />
+                <FontAwesomeIcon
+                  icon={showConfirmNewPassword ? faEyeSlash : faEye}
+                  onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex w-full gap-3 pt-4">
+                <button
+                  disabled={!isForgotStepValid}
+                  onClick={() => {
+                    if (newPassword.length >= 8 && newPassword === confirmNewPassword) {
+                      setShowForgotPassword(false);
+                      setShowSuccessPopup(true);
+                      setTimeout(() => {
+                        setShowSuccessPopup(false);
+                        setShowForgotPassword(false);
+                        resetForgotPassword();
+                      }, 3000);
+
+                    }
+                  }}
+                  className={`flex-1 py-2 rounded-md text-sm font-medium transition 
+                    ${isForgotStepValid
+                      ? "bg-amber-800 text-white hover:bg-amber-900 cursor-pointer"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                >
+                  Save
+                </button>
+              </div>
+            </>
+          )}
+        </motion.div>
+      </div>
+    )}
+    {/* Success Popup */}
+    {showSuccessPopup && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-xs backdrop-opacity  z-50 animate-fadeIn">
+        <div className="bg-white rounded-2xl shadow-lg p-6 w-[320px] relative text-center animate-slideDown">
+          <button
+            onClick={() => setShowSuccessPopup(false)}
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 cursor-pointer"
+          >
+            ✕
+          </button>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="bg-amber-800/20 text-amber-800 rounded-full p-4 animate-bounce">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-10 h-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-gray-800">Password changed successfully</h2>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 );
 }
