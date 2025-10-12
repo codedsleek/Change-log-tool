@@ -122,10 +122,13 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
   ];
 
   return (
-    <div ref={panelRef} className="flex-1 flex flex-col bg-white border-l border-gray-200">
+    <div
+      ref={panelRef}
+      className="flex-1 flex flex-col bg-white"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b bg-white">
-        <div>
+      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
+        <div className="flex items-center">
           <button
             onClick={onClose}
             className="flex items-center text-gray-600 hover:text-amber-800 hover:underline text-sm font-medium cursor-pointer"
