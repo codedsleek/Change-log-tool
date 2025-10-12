@@ -58,3 +58,18 @@
 .animate-scaleIn {
   animation: scaleIn 0.25s ease-out forwards;
 }
+
+@keyframes slideDownFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDownFadeIn {
+  animation: slideDownFadeIn 0.2s ease-out forwards;
+}
