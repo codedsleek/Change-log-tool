@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { X, CheckCircle } from "lucide-react";
+import { X, CheckCircle, FolderCheck } from "lucide-react";
 
 const CreateProjectModal = ({ onClose }) => {
   const [step, setStep] = useState(1);
@@ -101,7 +101,7 @@ const CreateProjectModal = ({ onClose }) => {
                 onClick={() => setStep(2)}
                 className={`w-full px-4 py-2 rounded-md text-sm font-medium ${
                   newProjectName
-                    ? "bg-amber-800 text-white hover:bg-amber-700"
+                    ? "bg-amber-800 text-white hover:bg-amber-900 cursor-pointer"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }`}
               >
@@ -147,7 +147,7 @@ const CreateProjectModal = ({ onClose }) => {
 
               <button
                 onClick={handleAddCollaborator}
-                className="w-full bg-amber-700/5 border-gray-800 text-amber-800 py-2 rounded-md hover:underline cursor-pointer"
+                className="w-full bg-amber-700/5 hover:bg-amber-900/30 border-gray-800 text-amber-800 py-2 rounded-md cursor-pointer"
               >
                 + Add a new collaborator
               </button>
@@ -156,7 +156,7 @@ const CreateProjectModal = ({ onClose }) => {
             <div className="px-6 pt-0 py-4 border-t border-gray-200">
               <button
                 onClick={handleCreateProject}
-                className="w-full px-4 py-2 rounded-md text-sm font-medium bg-amber-800 text-white hover:bg-amber-700 cursor-pointer"
+                className="w-full px-4 py-2 rounded-md text-sm font-medium bg-amber-800 text-white hover:bg-amber-900 cursor-pointer"
               >
                 Invite Collaborator(s)
               </button>
@@ -167,14 +167,14 @@ const CreateProjectModal = ({ onClose }) => {
         {/* STEP 3 — Success Screen */}
         {step === 3 && (
           <div className="text-center px-6 py-10">
-            <CheckCircle className="mx-auto text-amber-800 mb-4" size={64} />
+            <FolderCheck  className="mx-auto text-amber-800 mb-4 animate-bounce" size={136} strokeWidth={0.75} />
             <h2 className="text-lg font-semibold text-gray-800 mb-2">Project Created Successfully</h2>
             <p className="text-sm text-gray-500 mb-6">
               Create, track, add and review logs for your project.
             </p>
             <button
               onClick={onClose}
-              className="w-full px-4 py-2 rounded-md bg-amber-800 text-white font-medium hover:bg-amber-700"
+              className="w-full px-4 py-2 rounded-md bg-amber-800 text-white font-medium hover:bg-amber-900 cursor-pointer"
             >
               Proceed
             </button>

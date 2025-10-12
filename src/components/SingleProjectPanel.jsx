@@ -189,7 +189,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
             <Users size={16} className="mr-1" /> Invite People
           </button>
           <button className="flex items-center text-sm text-gray-600 hover:text-amber-800 hover:underline cursor-pointer">
-            <link size={16} className="mr-1" /> Share Project
+            <Link size={16} className="mr-1" /> Share Project
           </button>
           <div ref={exportRef} className="relative">
             <button
@@ -446,7 +446,7 @@ export default function SingleProjectPanel({ project, isOpen, onClose }) {
                           }}
                           className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors duration-150 rounded-b-lg cursor-pointer"
                         >
-                          <link size={14} className="mr-2 text-gray-500" /> Share log link
+                          <Link size={14} className="mr-2 text-gray-500" /> Share log link
                         </button>
                       </div>
                     )}

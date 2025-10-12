@@ -142,6 +142,8 @@ export default function Dashboard({ onOpenSettings }) {
     { icon: HelpCircle, label: 'Support' },
     { icon: Settings, label: 'Settings' }
   ];
+  console.log("showSettingsModal:", showSettingsModal);
+
 
   return (
     <div className="flex h-screen w-full bg-white overflow-hidden">
@@ -585,9 +587,8 @@ export default function Dashboard({ onOpenSettings }) {
           </div>
         </div>
       )}
-      {showSettingsModal && (
-        <SettingsModal open={showSettingsModal} onClose={handleCloseSettings} />
-      )}
+      <SettingsModal open={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
+
       {showSupportModal && (
         <SupportModal open={showSupportModal} onClose={() => setShowSupportModal(false)} />
       )}
